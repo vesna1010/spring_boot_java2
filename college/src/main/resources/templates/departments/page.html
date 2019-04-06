@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security5">
+<head th:replace="fragments.html::head">
+<body>
+
+	<div th:replace="fragments.html::nav"></div>
+
+	<div class="container">
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
+					class="text-right">
+					<a class="btn btn-success" th:href="@{/departments/form}">Add&nbsp;New&nbsp;Department</a>
+					<br> <br>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr class="table-success">
+								<th>ID</th>
+								<th>NAME</th>
+								<th>DATE OF CREATION</th>
+								<th>MANAGE</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="4" class="text-center"
+									th:if="${#lists.isEmpty(page.content)}">No&nbsp;Data</td>
+							</tr>
+							<tr th:each="department : ${page.content}">
+								<td th:text="${department.id}"></td>
+								<td th:text="${department.name}"></td>
+								<td
+									th:text="${#conversions.convert(department.createdOn, 'String')}"></td>
+								<td><a sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
+									class="btn btn-primary"
+									th:href="@{/departments/edit (id=${department.id})}">Edit</a> <a
+									sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
+									class="btn btn-danger"
+									th:href="@{/departments/delete (id=${department.id})}">Delete</a>
+									<a class="btn btn-secondary"
+									th:href="@{/study_programs (id=${department.id})}">Study&nbsp;Programs</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<br> <br> <br> <br> <br>
+				<div th:replace="fragments.html::pagination"></div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

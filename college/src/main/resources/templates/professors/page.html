@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html::head">
+</head>
+<body>
+
+	<div th:replace="fragments.html::nav"></div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="text-right">
+					<a class="btn btn-success" th:href="@{/professors/form}">Add&nbsp;Professor</a>
+					<br> <br>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr class="table-success">
+								<th>ID</th>
+								<th>NAME</th>
+								<th>PARENT</th>
+								<th>BIRTH DATE</th>
+								<th>EMAIL</th>
+								<th>TELEPHONE</th>
+								<th>GENDER</th>
+								<th>ADDRESS</th>
+								<th>PHOTO</th>
+								<th>TITLE</th>
+								<th>MANAGE</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="11" class="text-center"
+									th:if="${#lists.isEmpty(page.content)}">No&nbsp;Data</td>
+							</tr>
+							<tr th:each="professor : ${page.content}">
+								<td th:text="${professor.id}"></td>
+								<td th:text="${professor.name}"></td>
+								<td th:text="${professor.parent}"></td>
+								<td
+									th:text="${#conversions.convert(professor.birthDate, 'String')}"></td>
+								<td th:text="${professor.email}"></td>
+								<td th:text="${professor.telephone}"></td>
+								<td th:text="${professor.gender}"></td>
+								<td th:text="${professor.address}"></td>
+								<td><img width="100" height="100"
+									th:src="'data:image/jpeg;base64, ' + ${professor}"></td>
+								<td th:text="${professor.title}"></td>
+								<td><a class="btn btn-primary"
+									th:href="@{/professors/edit (id=${professor.id})}">Edit</a> <a
+									class="btn btn-danger"
+									th:href="@{/professors/delete (id=${professor.id})}">Delete</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<br> <br> <br> <br> <br>
+				<div th:replace="fragments.html::pagination"></div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security5">
+<head th:fragment="head">
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="http://localhost:8080/college/static/css/style.css">
+</head>
+<body>
+
+	<div th:fragment="nav">
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+			<a class="navbar-brand" th:href="@{/}">IMAGE</a>
+
+			<div class="collapse navbar-collapse" id="navbar">
+
+				<ul class="navbar-nav">
+					<li th:class="nav-item" sec:authorize="hasAuthority('ADMIN')"
+						th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'users')} ? 'active'"><a
+						class="nav-link" th:href="@{/users}">Users</a></li>
+
+					<li
+						th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'departments')} ? 'active'"><a
+						class="nav-link" th:href="@{/departments}">Departments</a></li>
+
+					<li
+						th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'study_programs')} ? 'active'"><a
+						class="nav-link" th:href="@{/study_programs}">Study&nbsp;programs</a></li>
+
+					<li sec:authorize="hasAnyAuthority('ADMIN', 'USER')"
+						th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'professors')} ? 'active'"><a
+						class="nav-link" th:href="@{/professors}">Professors</a></li>
+
+					<li
+						th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'students')} ? 'active'"><a
+						class="nav-link" th:href="@{/students}">Students</a></li>
+
+					<li
+						th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'subjects')} ? 'active'"><a
+						class="nav-link" th:href="@{/subjects}">Subjects</a></li>
+				</ul>
+
+			</div>
+
+			<div sec:authorize="isAuthenticated()">
+				<a th:href="@{/users/edit}">Update&nbsp;Password</a>&emsp;
+			</div>
+
+			<div sec:authorize="!isAuthenticated()">
+				<a th:href="@{/login}">Log&nbsp;in</a>&emsp;
+			</div>
+
+			<div sec:authorize="isAuthenticated()">
+				<form th:action="@{/logout}" method="post">
+					<input type="submit" class="btn btn-secondary" value="Log out" />
+				</form>
+			</div>
+
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbar">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+		</nav>
+	</div>
+
+	<div th:fragment="pagination" th:if="${page.totalPages > 0}"
+		th:with="url=${#maps.containsKey(#httpServletRequest.parameterMap, 'id')} ?
+	${#httpServletRequest.requestURL} + '?id=' + ${param.id} : ${#httpServletRequest.requestURL}">
+
+		<ul class="pagination">
+			<li class="page-item"
+				th:classappend="${!page.hasPrevious()} ? 'disabled'"><a
+				class="page-link"
+				th:href="@{${url} (page=${page.number - 1}, size=${page.size})}">Previous</a></li>
+
+			<li class="page-item"
+				th:classappend="${number == page.number} ? 'active'"
+				th:each="number : ${T(com.vesna1010.college.helper.Helper).getNumbers(page.number, page.totalPages)}"><a
+				class="page-link"
+				th:href="@{${url} (page=${number}, size=${page.size})}"
+				th:text="${number + 1}"></a></li>
+
+			<li class="page-item"
+				th:classappend="${!page.hasNext()} ? 'disabled'"><a
+				class="page-link"
+				th:href="@{${url} (page=${page.number + 1}, size=${page.size})}">Next</a></li>
+		</ul>
+
+	</div>
+
+</body>
+</html>

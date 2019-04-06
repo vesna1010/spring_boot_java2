@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html::head">
+<body>
+
+	<div th:replace="fragments.html::nav"></div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<form th:action="@{/exams/search (id=${param.id})}"
+					th:object="${exam}" method="post">
+
+					<div class="form-group row">
+						<label for="date"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">DATE</label>
+						<div class="col-sm-4">
+							<input type="text" id="date" th:field="*{date}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('date')}" th:errors="*{date}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="subject"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">SUBJECT</label>
+						<div class="col-sm-4">
+							<select id="subject" th:field="*{subject}" class="form-control">
+								<option value=""></option>
+								<option th:each="subject : ${subjects}" th:value="${subject.id}"
+									th:text="${subject.name}"></option>
+							</select>
+							<p th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="professor"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">PROFESSOR</label>
+						<div class="col-sm-4">
+							<select id="professor" th:field="*{professor}"
+								class="form-control">
+								<option value=""></option>
+								<option th:each="professor : ${professors}"
+									th:value="${professor.id}" th:text="${professor.name}"></option>
+							</select>
+							<p th:if="${#fields.hasErrors('professor')}"
+								th:errors="*{professor}" th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<div class="col-sm-4 offset-sm-5">
+							<button type="submit" class="btn btn-primary">Search</button>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

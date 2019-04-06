@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html::head">
+</head>
+<body>
+
+	<div th:replace="fragments.html::nav"></div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr class="table-success">
+								<th colspan="5" th:text="${'DATE : ' + date}"></th>
+							</tr>
+							<tr class="table-success">
+								<th colspan="5" th:text="${'PROFESSOR : ' + professor.name}"></th>
+							</tr>
+							<tr class="table-success">
+								<th colspan="5" th:text="${'SUBJECT : ' + subject.name}"></th>
+							</tr>
+							<tr class="table-success">
+								<th></th>
+								<th>STUDENT</th>
+								<th>SCORE</th>
+							</tr>
+
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="4" class="text-center"
+									th:if="${#lists.isEmpty(exams)}">No&nbsp;Data</td>
+							</tr>
+							<tr th:each="exam, status : ${exams}">
+								<td th:text="${status.index + 1}"></td>
+								<td th:text="${exam.student.name}"></td>
+								<td th:text="${exam.score}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

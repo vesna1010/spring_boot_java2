@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html::head">
+<body>
+
+	<div th:replace="fragments.html::nav"></div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<form th:action="@{/users/save}" th:object="${user}" method="post">
+
+					<input type="hidden" th:field="*{id}">
+
+					<div class="form-group row">
+						<label for="name"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">NAME</label>
+						<div class="col-sm-4">
+							<input type="text" id="name" th:field="*{name}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="email"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">EMAIL</label>
+						<div class="col-sm-4">
+							<input type="text" id="email" th:field="*{email}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="password"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">PASSWORD</label>
+						<div class="col-sm-4">
+							<input type="password" id="password" th:field="*{password}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('password')}"
+								th:errors="*{password}" th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="confirmPassword"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">CONFIRM&nbsp;PASSWORD</label>
+						<div class="col-sm-4">
+							<input type="password" id="confirmPassword"
+								th:field="*{confirmPassword}" class="form-control">
+							<p th:if="${#fields.hasErrors('confirmPassword')}"
+								th:errors="*{confirmPassword}" th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="authority"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">AUTHORITY</label>
+						<div class="col-sm-4">
+							<select id="authority" th:field="*{authority}"
+								class="form-control">
+								<option value=""></option>
+								<option
+									th:each="authority : ${T(com.vesna1010.college.enums.Authority).values()}"
+									th:value="${authority}" th:text="${authority}"></option>
+							</select>
+							<p th:if="${#fields.hasErrors('authority')}"
+								th:errors="*{authority}" th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<div class="col-sm-4 offset-sm-5">
+							<button type="submit" class="btn btn-primary">Save</button>
+							<a th:href="@{/users/form}" class="btn btn-secondary">Reset</a>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

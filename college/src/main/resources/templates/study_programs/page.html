@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymelaf.org/extras/spring-securty5">
+<head th:replace="fragments.html::head">
+<body>
+
+	<div th:replace="fragments.html::nav"></div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<div sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
+					class="text-right">
+					<a class="btn btn-success" th:href="@{/study_programs/form}">Add&nbsp;Study&nbsp;Program</a>
+					<br> <br>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr class="table-success">
+								<th>ID</th>
+								<th>NAME</th>
+								<th>DATE OF CREATION</th>
+								<th>DURATION</th>
+								<th>DEPARTMENT</th>
+								<th>MANAGE</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="6" class="text-center"
+									th:if="${#lists.isEmpty(page.content)}">No&nbsp;Data</td>
+							</tr>
+							<tr th:each="studyProgram : ${page.content}">
+								<td th:text="${studyProgram.id}"></td>
+								<td th:text="${studyProgram.name}"></td>
+								<td
+									th:text="${#conversions.convert(studyProgram.createdOn, 'String')}"></td>
+								<td th:text="${studyProgram.duration}"></td>
+								<td th:text="${studyProgram.department.name}"></td>
+								<td><a sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
+									class="btn btn-primary"
+									th:href="@{/study_programs/edit (id=${studyProgram.id})}">Edit</a>
+									<a sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
+									class="btn btn-danger"
+									th:href="@{/study_programs/delete (id=${studyProgram.id})}">Delete</a>
+									<a class="btn btn-secondary"
+									th:href="@{/students (id=${studyProgram.id})}">Students</a> <a
+									class="btn btn-secondary"
+									th:href="@{/subjects (id=${studyProgram.id})}">Subjects</a> <a
+									sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
+									class="btn btn-secondary"
+									th:href="@{/professors (id=${studyProgram.id})}">Professors</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<br> <br> <br> <br> <br>
+				<div th:replace="fragments.html::pagination"></div>
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>

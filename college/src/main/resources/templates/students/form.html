@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments.html::head">
+<body>
+
+	<div th:replace="fragments.html::nav"></div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<form th:action="@{/students/save}" th:object="${student}"
+					method="post" enctype="multipart/form-data">
+
+					<input type="hidden" th:field="*{id}">
+
+					<div class="form-group row">
+						<label for="startDate"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">START
+							DATE</label>
+						<div class="col-sm-4">
+							<input type="text" id="startDate" th:field="*{startDate}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('startDate')}"
+								th:errors="*{startDate}" th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="name"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">NAME</label>
+						<div class="col-sm-4">
+							<input type="text" id="name" th:field="*{name}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="parent"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">PARENT</label>
+						<div class="col-sm-4">
+							<input type="text" id="parent" th:field="*{parent}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('parent')}" th:errors="*{parent}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="birthDate"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">BIRTH&nbsp;DATE</label>
+						<div class="col-sm-4">
+							<input type="text" id="birthDate" th:field="*{birthDate}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('birthDate')}"
+								th:errors="*{birthDate}" th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="email"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">EMAIL</label>
+						<div class="col-sm-4">
+							<input type="text" id="email" th:field="*{email}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="telephone"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">TELEPHONE</label>
+						<div class="col-sm-4">
+							<input type="text" id="telephone" th:field="*{telephone}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('telephone')}"
+								th:errors="*{telephone}" th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="gender"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">GENDER</label>
+						<div class="col-sm-4">
+							<select id="gender" th:field="*{gender}" class="form-control">
+								<option value=""></option>
+								<option
+									th:each="gender : ${T(com.vesna1010.college.enums.Gender).values()}"
+									th:value="${gender}" th:text="${gender}"></option>
+							</select>
+							<p th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="address"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">ADDRESS</label>
+						<div class="col-sm-4">
+							<input type="text" id="address" th:field="*{address}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('address')}" th:errors="*{address}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="col-sm-4 offset-sm-5"
+						th:if="${!#strings.isEmpty(student)}">
+						<img width="100" height="100"
+							th:src="'data:image/jpeg;base64, ' + ${student}" /><br> <br>
+					</div>
+
+					<div class="form-group row">
+						<label for="photo"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">PHOTO</label>
+						<div class="col-sm-4">
+							<input type="hidden" th:field="*{photo}"> <input
+								type="file" id="photo" name="file" class="form-control">
+							<p th:if="${#fields.hasErrors('photo')}" th:errors="*{photo}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="studyProgram"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">STUDY&nbsp;PROGRAMf</label>
+						<div class="col-sm-4">
+							<select id="studyProgram" th:field="*{studyProgram}"
+								class="form-control">
+								<option value=""></option>
+								<option th:each="studyProgram : ${studyPrograms}"
+									th:value="${studyProgram.id}" th:text="${studyProgram.name}"></option>
+							</select>
+							<p th:if="${#fields.hasErrors('studyProgram')}"
+								th:errors="*{studyProgram}" th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="year"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">YEAR</label>
+						<div class="col-sm-4">
+							<input type="text" id="year" th:field="*{year}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('year')}" th:errors="*{year}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="endDate"
+							class="col-sm-2 offset-sm-3 col-form-label text-right">END&nbsp;DATE</label>
+						<div class="col-sm-4">
+							<input type="text" id="endDate" th:field="*{endDate}"
+								class="form-control">
+							<p th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"
+								th:class="text-danger"></p>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<div class="col-sm-4 offset-sm-5">
+							<button type="submit" class="btn btn-primary">Save</button>
+							<a th:href="@{/students/form}" class="btn btn-secondary">Reset</a>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

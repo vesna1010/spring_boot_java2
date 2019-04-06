@@ -1,0 +1,12 @@
+@CHARSET "UTF-8";
+
+body {
+	padding-top: 80px;
+	background-color: #6f5499;
+	color: white;
+}
+
+.table {
+	background-color: #C0C0C0;
+	color: black;
+}

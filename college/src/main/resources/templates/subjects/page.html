@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymelaf.org/extras/spring-security5">
+<head th:replace="fragments.html::head">
+<body>
+
+	<div th:replace="fragments.html::nav"></div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<div sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
+					class="text-right">
+					<a class="btn btn-success" th:href="@{/subjects/form}">Add&nbsp;Subject</a>
+					<br> <br>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="table-responsive">
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr class="table-success">
+								<th>ID</th>
+								<th>NAME</th>
+								<th>STUDY PROGRAMME</th>
+								<th>PROFESSORS</th>
+								<th sec:authorize="hasAnyAuthority('USER', 'ADMIN')">MANAGE</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="5" class="text-center"
+									th:if="${#lists.isEmpty(page.content)}">No&nbsp;Data</td>
+							</tr>
+							<tr th:each="subject : ${page.content}">
+								<td th:text="${subject.id}"></td>
+								<td th:text="${subject.name}"></td>
+								<td th:text="${subject.studyProgram.name}"></td>
+								<td>
+									<div th:each="professor : ${subject.professors}"
+										th:text="${professor.name}"></div>
+								</td>
+								<td sec:authorize="hasAnyAuthority('USER', 'ADMIN')"><a
+									class="btn btn-primary"
+									th:href="@{/subjects/edit (id=${subject.id})}">Edit</a> <a
+									class="btn btn-danger"
+									th:href="@{/subjects/delete (id=${subject.id})}">Delete</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<br> <br> <br> <br> <br>
+				<div th:replace="fragments.html::pagination"></div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
