@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import com.vesna1010.college.CollegeApplicationTests;
 
-public class BaseControllerTest extends CollegeApplicationTests {
+public abstract class BaseControllerTest extends CollegeApplicationTests {
 
 	@Autowired
 	protected WebApplicationContext context;
