@@ -11,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -92,11 +91,6 @@ public class Student extends Person {
 
 	public void setExams(Set<Exam> exams) {
 		this.exams = exams;
-	}
-
-	@Transient
-	public double getAverage() {
-		return exams.stream().mapToInt(e -> e.getScore()).average().orElse(0.0);
 	}
 
 }
