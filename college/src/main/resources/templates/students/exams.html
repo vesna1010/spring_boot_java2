@@ -23,6 +23,10 @@
 							</tr>
 						</thead>
 						<tbody>
+							<tr>
+								<td colspan="5" class="text-center"
+									th:if="${#lists.isEmpty(student.exams)}">No&nbsp;Data</td>
+							</tr>
 							<tr th:each="exam, status : ${student.exams}">
 								<td th:text="${status.index + 1}"></td>
 								<td th:text="${exam.subject.name}"></td>
@@ -30,9 +34,10 @@
 								<td th:text="${exam.date}"></td>
 								<td th:text="${exam.score}"></td>
 							</tr>
-							<tr>
+							<tr th:if="${!#lists.isEmpty(student.exams)}">
 								<th colspan="4">AVERAGE</th>
-								<th th:text="${#numbers.formatDecimal(student.average, 0, 2)}"></th> 
+								<th
+									th:text="${#numbers.formatDecimal(#aggregates.avg(student.exams.![score]), 0, 2)}"></th>
 							</tr>
 						</tbody>
 					</table>
