@@ -38,8 +38,7 @@
 							<tr th:each="department : ${page.content}">
 								<td th:text="${department.id}"></td>
 								<td th:text="${department.name}"></td>
-								<td
-									th:text="${#conversions.convert(department.createdOn, 'String')}"></td>
+								<td th:text="${{department.createdOn}}"></td>
 								<td><a sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
 									class="btn btn-primary"
 									th:href="@{/departments/edit (id=${department.id})}">Edit</a> <a
