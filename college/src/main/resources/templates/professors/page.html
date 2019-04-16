@@ -44,8 +44,7 @@
 								<td th:text="${professor.id}"></td>
 								<td th:text="${professor.name}"></td>
 								<td th:text="${professor.parent}"></td>
-								<td
-									th:text="${#conversions.convert(professor.birthDate, 'String')}"></td>
+								<td th:text="${{professor.birthDate}}"></td>
 								<td th:text="${professor.email}"></td>
 								<td th:text="${professor.telephone}"></td>
 								<td th:text="${professor.gender}"></td>
