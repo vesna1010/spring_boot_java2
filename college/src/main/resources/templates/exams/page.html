@@ -41,8 +41,8 @@
 									th:if="${#lists.isEmpty(page.content)}">No&nbsp;Data</td>
 							</tr>
 							<tr th:each="exam : ${page.content}">
-								<td></td>
-								<td th:text="${#conversions.convert(exam.date, 'String')}"></td>
+								<td th:text="${examStat.index + 1}"></td>
+								<td th:text="${{exam.date}}"></td>
 								<td th:text="${exam.subject.name}"></td>
 								<td th:text="${exam.professor.name}"></td>
 								<td th:text="${exam.student.name}"></td>
