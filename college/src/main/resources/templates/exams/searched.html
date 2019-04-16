@@ -13,13 +13,13 @@
 					<table class="table table-striped table-bordered">
 						<thead>
 							<tr class="table-success">
-								<th colspan="5" th:text="${'DATE : ' + date}"></th>
+								<th colspan="5" th:text="'DATE : ' + ${{date}}"></th>
 							</tr>
 							<tr class="table-success">
-								<th colspan="5" th:text="${'PROFESSOR : ' + professor.name}"></th>
+								<th colspan="5" th:text="'PROFESSOR : ' + ${professor.name}"></th>
 							</tr>
 							<tr class="table-success">
-								<th colspan="5" th:text="${'SUBJECT : ' + subject.name}"></th>
+								<th colspan="5" th:text="'SUBJECT : ' + ${subject.name}"></th>
 							</tr>
 							<tr class="table-success">
 								<th></th>
@@ -33,8 +33,8 @@
 								<td colspan="4" class="text-center"
 									th:if="${#lists.isEmpty(exams)}">No&nbsp;Data</td>
 							</tr>
-							<tr th:each="exam, status : ${exams}">
-								<td th:text="${status.index + 1}"></td>
+							<tr th:each="exam : ${exams}">
+								<td th:text="${examStat.count}"></td>
 								<td th:text="${exam.student.name}"></td>
 								<td th:text="${exam.score}"></td>
 							</tr>
