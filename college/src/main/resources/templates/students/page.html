@@ -48,19 +48,17 @@
 								<td th:text="${student.id}"></td>
 								<td th:text="${student.name}"></td>
 								<td th:text="${student.parent}"></td>
-								<td
-									th:text="${#conversions.convert(student.birthDate, 'String')}"></td>
+								<td th:text="${{student.birthDate}}"></td>
 								<td th:text="${student.email}"></td>
 								<td th:text="${student.telephone}"></td>
 								<td th:text="${student.gender}"></td>
 								<td th:text="${student.address}"></td>
 								<td><img width="100" height="100"
 									th:src="'data:image/jpeg;base64, ' + ${student}"></td>
-								<td
-									th:text="${#conversions.convert(student.startDate, 'String')}"></td>
+								<td th:text="${{student.startDate}}"></td>
 								<td th:text="${student.year}"></td>
 								<td th:text="${student.studyProgram.name}"></td>
-								<td th:text="${#conversions.convert(student.endDate, 'String')}"></td>
+								<td th:text="${{student.endDate}}"></td>
 								<td><a sec:authorize="hasAnyAuthority('USER', 'ADMIN')"
 									class="btn btn-primary"
 									th:href="@{/students/edit (id=${student.id})}">Edit</a> <a
