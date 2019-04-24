@@ -18,13 +18,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import java.util.Arrays;
 import java.util.HashSet;
-
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
-
 import com.vesna1010.college.models.Professor;
 import com.vesna1010.college.models.Subject;
 import com.vesna1010.college.services.ProfessorService;
@@ -51,8 +49,8 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				new PageImpl<Subject>(Arrays.asList(subject1, subject2, subject3, subject4)));
 	
 		mockMvc.perform(get("/subjects"))
-	           .andExpect(status().is3xxRedirection())
-	           .andExpect(redirectedUrlPattern("**/login"));
+	               .andExpect(status().is3xxRedirection())
+	               .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(subjectService, times(0)).findAllSubjects(PAGEABLE);
 	}
@@ -81,9 +79,9 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	
 		mockMvc.perform(get("/subjects"))
 		       .andExpect(status().isOk())
-	           .andExpect(model().attribute("page", hasProperty("content", hasSize(4))))
-               .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-               .andExpect(view().name("subjects/page"));
+	               .andExpect(model().attribute("page", hasProperty("content", hasSize(4))))
+                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+                       .andExpect(view().name("subjects/page"));
 		
 		verify(subjectService, times(1)).findAllSubjects(PAGEABLE);
 	}
@@ -102,8 +100,8 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				get("/subjects")
 				.param("id", "1")
 				)
-	           .andExpect(status().is3xxRedirection())
-	           .andExpect(redirectedUrlPattern("**/login"));
+	               .andExpect(status().is3xxRedirection())
+	               .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, PAGEABLE);
 	}
@@ -135,9 +133,9 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
-               .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-               .andExpect(view().name("subjects/page"));
+                       .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
+                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+                       .andExpect(view().name("subjects/page"));
 		
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, PAGEABLE);
 	}
@@ -154,8 +152,8 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				.thenReturn(Arrays.asList(studyProgram3, studyProgram1, studyProgram2));
 		
 		mockMvc.perform(get("/subjects/form"))
-               .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(status().is3xxRedirection())
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(professorService, times(0)).findAllProfessors(SORT);
 		verify(studyProgramService, times(0)).findAllStudyPrograms(SORT);
@@ -198,10 +196,10 @@ public class SubjectsControllerTest extends BaseControllerTest {
 		
 		mockMvc.perform(get("/subjects/form"))
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("subject", is(new Subject())))
-               .andExpect(model().attribute("professors", hasSize(3)))
-               .andExpect(model().attribute("studyPrograms", hasSize(3)))
-               .andExpect(view().name("subjects/form"));
+                       .andExpect(model().attribute("subject", is(new Subject())))
+                       .andExpect(model().attribute("professors", hasSize(3)))
+                       .andExpect(model().attribute("studyPrograms", hasSize(3)))
+                       .andExpect(view().name("subjects/form"));
 		
 		verify(professorService, times(1)).findAllProfessors(SORT);
 		verify(studyProgramService, times(1)).findAllStudyPrograms(SORT);
@@ -229,11 +227,11 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(studyProgramService, times(0)).findStudyProgramById(1L);
 		verify(professorService, times(0)).findProfessorById(1L);
-	    verify(subjectService, times(0)).saveSubject(subject);
+	        verify(subjectService, times(0)).saveSubject(subject);
 	}
 	
 	@Test
@@ -261,7 +259,7 @@ public class SubjectsControllerTest extends BaseControllerTest {
 		
 		verify(studyProgramService, times(0)).findStudyProgramById(1L);
 		verify(professorService, times(0)).findProfessorById(1L);
-	    verify(subjectService, times(0)).saveSubject(subject);
+	        verify(subjectService, times(0)).saveSubject(subject);
 	}
 	
 	@Test
@@ -291,13 +289,13 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				.param("professors", "1")
 				.with(csrf())
 				)
-	           .andExpect(model().hasNoErrors())
-	           .andExpect(status().is3xxRedirection())
-	           .andExpect(redirectedUrl("/subjects/form"));
+	               .andExpect(model().hasNoErrors())
+	               .andExpect(status().is3xxRedirection())
+	               .andExpect(redirectedUrl("/subjects/form"));
 		
 		verify(studyProgramService, times(1)).findStudyProgramById(1L);
 		verify(professorService, times(1)).findProfessorById(1L);
-	    verify(subjectService, times(1)).saveSubject(subject);
+	        verify(subjectService, times(1)).saveSubject(subject);
 	}
 	
 	@Test
@@ -321,17 +319,17 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().isOk())
-	           .andExpect(model().attributeHasFieldErrors("subject", "name"))
-	           .andExpect(model().attribute("subject", hasProperty("id", is(nullValue()))))
-	           .andExpect(model().attribute("professors", hasSize(3)))
-	           .andExpect(model().attribute("studyPrograms", hasSize(3)))
-	           .andExpect(view().name("subjects/form"));
+	               .andExpect(model().attributeHasFieldErrors("subject", "name"))
+	               .andExpect(model().attribute("subject", hasProperty("id", is(nullValue()))))
+	               .andExpect(model().attribute("professors", hasSize(3)))
+	               .andExpect(model().attribute("studyPrograms", hasSize(3)))
+	               .andExpect(view().name("subjects/form"));
 		
 		verify(professorService, times(1)).findAllProfessors(SORT);
 		verify(studyProgramService, times(1)).findAllStudyPrograms(SORT);
 		verify(studyProgramService, times(1)).findStudyProgramById(1L);
 		verify(professorService, times(1)).findProfessorById(1L);
-	    verify(subjectService, times(0)).saveSubject(subject);
+	        verify(subjectService, times(0)).saveSubject(subject);
 	}
 	
 	@Test
@@ -350,8 +348,8 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				get("/subjects/edit")
 				.param("id", "1")
 				)
-               .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(status().is3xxRedirection())
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(professorService, times(0)).findAllProfessors(SORT);
 		verify(studyProgramService, times(0)).findAllStudyPrograms(SORT);
@@ -374,7 +372,7 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				get("/subjects/edit")
 				.param("id", "1")
 				)
-               .andExpect(status().isForbidden());
+                       .andExpect(status().isForbidden());
 		
 		verify(professorService, times(0)).findAllProfessors(SORT);
 		verify(studyProgramService, times(0)).findAllStudyPrograms(SORT);
@@ -404,10 +402,10 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("subject", hasProperty("name", is("Subject B"))))
-               .andExpect(model().attribute("professors", hasSize(3)))
-               .andExpect(model().attribute("studyPrograms", hasSize(3)))
-               .andExpect(view().name("subjects/form"));
+                       .andExpect(model().attribute("subject", hasProperty("name", is("Subject B"))))
+                       .andExpect(model().attribute("professors", hasSize(3)))
+                       .andExpect(model().attribute("studyPrograms", hasSize(3)))
+                       .andExpect(view().name("subjects/form"));
 		
 		verify(professorService, times(1)).findAllProfessors(SORT);
 		verify(studyProgramService, times(1)).findAllStudyPrograms(SORT);
@@ -428,7 +426,7 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 	
 		verify(subjectService, times(0)).deleteSubjectById(1L);
 	}
@@ -471,7 +469,7 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrl("/subjects"));
+                       .andExpect(redirectedUrl("/subjects"));
 	
 		verify(subjectService, times(1)).deleteSubjectById(1L);
 	}
