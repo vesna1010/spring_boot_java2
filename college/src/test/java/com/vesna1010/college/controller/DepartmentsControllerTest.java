@@ -43,8 +43,8 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 				.thenReturn(new PageImpl<Department>(Arrays.asList(department1, department2)));
 		
 		mockMvc.perform(get("/departments"))
-	           .andExpect(status().is3xxRedirection())
-	           .andExpect(redirectedUrlPattern("**/login"));
+	               .andExpect(status().is3xxRedirection())
+	               .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(service, times(0)).findAllDepartments(PAGEABLE);
 	}
@@ -72,10 +72,10 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 				.thenReturn(new PageImpl<Department>(Arrays.asList(department1, department2)));
 	
 		mockMvc.perform(get("/departments"))
-	           .andExpect(status().isOk())
-	           .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
-	           .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-	           .andExpect(view().name("departments/page"));
+	               .andExpect(status().isOk())
+	               .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
+	               .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+	               .andExpect(view().name("departments/page"));
 		
 		verify(service, times(1)).findAllDepartments(PAGEABLE);
 	}
@@ -88,8 +88,8 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	
 	private void renderEmptyFormNotLoggedIn() throws Exception {
 		mockMvc.perform(get("/departments/form"))
-               .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(status().is3xxRedirection())
+                       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -118,8 +118,8 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	private void renderEmptyForm() throws Exception {
 		mockMvc.perform(get("/departments/form"))
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("department", is(new Department())))
-               .andExpect(view().name("departments/form"));
+                       .andExpect(model().attribute("department", is(new Department())))
+                       .andExpect(view().name("departments/form"));
 	}
 	
 	@Test
@@ -141,7 +141,7 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(service, times(0)).saveDepartment(department);
 	}
@@ -235,8 +235,8 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 				get("/departments/edit")
 				.param("id", "1")
 				)
-               .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(status().is3xxRedirection())
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(service, times(0)).findDepartmentById(1L);
 	}
@@ -279,8 +279,8 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("department", hasProperty("name", is("Department B"))))
-               .andExpect(view().name("departments/form"));
+                       .andExpect(model().attribute("department", hasProperty("name", is("Department B"))))
+                       .andExpect(view().name("departments/form"));
 		
 		verify(service, times(1)).findDepartmentById(1L);
 	}
@@ -299,7 +299,7 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 	
 		verify(service, times(0)).deleteDepartmentById(1L);
 	}
@@ -342,7 +342,7 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrl("/departments"));
+                       .andExpect(redirectedUrl("/departments"));
 	
 		verify(service, times(1)).deleteDepartmentById(1L);
 	}
