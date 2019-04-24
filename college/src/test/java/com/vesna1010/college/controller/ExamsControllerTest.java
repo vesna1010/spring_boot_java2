@@ -63,7 +63,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		      .andExpect(status().is3xxRedirection())
-              .andExpect(redirectedUrlPattern("**/login"));
+                      .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(examService, times(0)).findAllExamsByStudyProgramId(1L, pageable);
 	}
@@ -98,9 +98,9 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("page", hasProperty("content", hasSize(3))))
-               .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-               .andExpect(view().name("exams/page"));
+                       .andExpect(model().attribute("page", hasProperty("content", hasSize(3))))
+                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+                       .andExpect(view().name("exams/page"));
 		
 		verify(examService, times(1)).findAllExamsByStudyProgramId(1L, pageable);
 	}
@@ -123,7 +123,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("studentId", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 	
 		verify(examService, times(0)).deleteExamById(id);
 	}
@@ -174,7 +174,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("studentId", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrl("/exams?id=1"));
+                       .andExpect(redirectedUrl("/exams?id=1"));
 	
 		verify(examService, times(1)).deleteExamById(id);
 	}
@@ -196,7 +196,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(studentService, times(0)).findAllStudentsByStudyProgramId(1L, SORT);
@@ -249,11 +249,11 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("exam", is(new Exam())))
-               .andExpect(model().attribute("professors", hasSize(2)))
-               .andExpect(model().attribute("subjects", hasSize(2)))
-               .andExpect(model().attribute("students", hasSize(2)))
-               .andExpect(view().name("exams/form"));
+                       .andExpect(model().attribute("exam", is(new Exam())))
+                       .andExpect(model().attribute("professors", hasSize(2)))
+                       .andExpect(model().attribute("subjects", hasSize(2)))
+                       .andExpect(model().attribute("students", hasSize(2)))
+                       .andExpect(view().name("exams/form"));
 		
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(studentService, times(1)).findAllStudentsByStudyProgramId(1L, SORT);
@@ -286,7 +286,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(studentService, times(0)).findStudentById(2L);
 		verify(subjectService, times(0)).findSubjectById(3L);
@@ -398,8 +398,8 @@ public class ExamsControllerTest extends BaseControllerTest {
 		       .andExpect(model().attribute("exam", hasProperty("student", is(student2))))
 		       .andExpect(model().attribute("exam", hasProperty("subject", is(subject3))))
 		       .andExpect(model().attribute("professors", hasSize(2)))
-               .andExpect(model().attribute("subjects", hasSize(2)))
-               .andExpect(model().attribute("students", hasSize(2)))
+                       .andExpect(model().attribute("subjects", hasSize(2)))
+                       .andExpect(model().attribute("students", hasSize(2)))
 		       .andExpect(view().name("exams/form"));
 		       
 		verify(studentService, times(1)).findAllStudentsByStudyProgramId(1L, SORT);
@@ -433,7 +433,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("subjectId", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(studentService, times(0)).findAllStudentsByStudyProgramId(1L, SORT);
@@ -498,11 +498,11 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("subjectId", "1")
 				)
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("exam", hasProperty("score", is(8))))
-               .andExpect(model().attribute("professors", hasSize(2)))
-               .andExpect(model().attribute("subjects", hasSize(2)))
-               .andExpect(model().attribute("students", hasSize(2)))
-               .andExpect(view().name("exams/form"));
+                       .andExpect(model().attribute("exam", hasProperty("score", is(8))))
+                       .andExpect(model().attribute("professors", hasSize(2)))
+                       .andExpect(model().attribute("subjects", hasSize(2)))
+                       .andExpect(model().attribute("students", hasSize(2)))
+                       .andExpect(view().name("exams/form"));
 		
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(studentService, times(1)).findAllStudentsByStudyProgramId(1L, SORT);
@@ -526,7 +526,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(professorService, times(0)).findAllProfessorsByStudyProgramId(1L, SORT);
@@ -561,9 +561,9 @@ public class ExamsControllerTest extends BaseControllerTest {
 				)
 		       .andExpect(status().isOk())
 		       .andExpect(model().attribute("exam", is(new Exam())))
-               .andExpect(model().attribute("professors", hasSize(2)))
-               .andExpect(model().attribute("subjects", hasSize(2)))
-               .andExpect(view().name("exams/search"));
+                       .andExpect(model().attribute("professors", hasSize(2)))
+                       .andExpect(model().attribute("subjects", hasSize(2)))
+                       .andExpect(view().name("exams/search"));
 		
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(professorService, times(1)).findAllProfessorsByStudyProgramId(1L, SORT);
@@ -589,7 +589,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(subjectService, times(0)).findSubjectById(1L);
 		verify(professorService, times(0)).findProfessorById(1L);
@@ -659,9 +659,9 @@ public class ExamsControllerTest extends BaseControllerTest {
 		       .andExpect(status().isOk())
 		       .andExpect(model().attributeHasFieldErrors("exam", "date"))
 		       .andExpect(model().attribute("professors", hasSize(2)))
-               .andExpect(model().attribute("subjects", hasSize(2)))
-               .andExpect(model().attribute("exam", hasProperty("subject", is(subject1))))
-               .andExpect(model().attribute("exam", hasProperty("professor", is(professor1))))
+                       .andExpect(model().attribute("subjects", hasSize(2)))
+                       .andExpect(model().attribute("exam", hasProperty("subject", is(subject1))))
+                       .andExpect(model().attribute("exam", hasProperty("professor", is(professor1))))
 		       .andExpect(view().name("exams/search"));
 		
 		verify(subjectService, times(1)).findSubjectById(1L);
