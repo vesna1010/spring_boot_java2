@@ -44,8 +44,8 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				.thenReturn(new PageImpl<Professor>(Arrays.asList(professor1, professor2, professor3)));
 
 		mockMvc.perform(get("/professors"))
-               .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(status().is3xxRedirection())
+                       .andExpect(redirectedUrlPattern("**/login"));
 	
 		verify(service, times(0)).findAllProfessors(PAGEABLE);
 	}
@@ -61,7 +61,7 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				.thenReturn(new PageImpl<Professor>(Arrays.asList(professor1, professor2, professor3)));
 
 		mockMvc.perform(get("/professors"))
-               .andExpect(status().isForbidden());
+                       .andExpect(status().isForbidden());
 	
 		verify(service, times(0)).findAllProfessors(PAGEABLE);
 	}
@@ -83,10 +83,10 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				.thenReturn(new PageImpl<Professor>(Arrays.asList(professor1, professor2, professor3)));
 
 		mockMvc.perform(get("/professors"))
-               .andExpect(status().isOk())
-               .andExpect(model().attribute("page", hasProperty("content", hasSize(3))))
-               .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-               .andExpect(view().name("professors/page"));
+                       .andExpect(status().isOk())
+                       .andExpect(model().attribute("page", hasProperty("content", hasSize(3))))
+                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+                       .andExpect(view().name("professors/page"));
 	
 		verify(service, times(1)).findAllProfessors(PAGEABLE);
 	}
@@ -105,8 +105,8 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				get("/professors")
 				.param("id", "1")
 				)
-               .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(status().is3xxRedirection())
+                       .andExpect(redirectedUrlPattern("**/login"));
 	
 		verify(service, times(0)).findAllProfessorsByStudyProgramId(1L, PAGEABLE);
 	}
@@ -125,7 +125,7 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				get("/professors")
 				.param("id", "1")
 				)
-               .andExpect(status().isForbidden());
+                       .andExpect(status().isForbidden());
 	
 		verify(service, times(0)).findAllProfessorsByStudyProgramId(1L, PAGEABLE);
 	}
@@ -152,8 +152,8 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				)
 		       .andExpect(status().isOk())
 		       .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
-               .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-               .andExpect(view().name("professors/page"));
+                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+                       .andExpect(view().name("professors/page"));
 	
 		verify(service, times(1)).findAllProfessorsByStudyProgramId(1L, PAGEABLE);
 	}
@@ -166,8 +166,8 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 	
 	private void renderEmptyFormNotLoggedIn() throws Exception {
 		mockMvc.perform(get("/professors/form"))
-               .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(status().is3xxRedirection())
+                       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 	
 	private void renderEmptyFormNotAuthorized() throws Exception {
 		mockMvc.perform(get("/professors/form"))
-               .andExpect(status().isForbidden());
+                       .andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -195,9 +195,9 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 
 	private void renderEmptyForm() throws Exception {
 		mockMvc.perform(get("/professors/form"))
-               .andExpect(status().isOk())
-               .andExpect(model().attribute("professor", is(new Professor())))
-               .andExpect(view().name("professors/form"));
+                       .andExpect(status().isOk())
+                       .andExpect(model().attribute("professor", is(new Professor())))
+                       .andExpect(view().name("professors/form"));
 	}
 	
 	@Test
@@ -228,7 +228,7 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(service, times(0)).saveProfessor(professor);
 	}
@@ -299,8 +299,8 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(model().hasNoErrors())
-               .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrl("/professors/form"));
+                       .andExpect(status().is3xxRedirection())
+                       .andExpect(redirectedUrl("/professors/form"));
 		
 		verify(service, times(1)).saveProfessor(professor);
 	}
@@ -329,9 +329,9 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().isOk())
-               .andExpect(model().attributeHasFieldErrors("professor", "name"))
-               .andExpect(model().attribute("professor", hasProperty("id", is(nullValue()))))
-               .andExpect(view().name("professors/form"));
+                       .andExpect(model().attributeHasFieldErrors("professor", "name"))
+                       .andExpect(model().attribute("professor", hasProperty("id", is(nullValue()))))
+                       .andExpect(view().name("professors/form"));
 		
 		verify(service, times(0)).saveProfessor(professor);
 	}
@@ -349,8 +349,8 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				get("/professors/edit")
 				.param("id","1")
 				)
-               .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(status().is3xxRedirection())
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(service, times(0)).findProfessorById(1L);
 	}
@@ -368,7 +368,7 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				get("/professors/edit")
 				.param("id","1")
 				)
-               .andExpect(status().isForbidden());
+                       .andExpect(status().isForbidden());
 		
 		verify(service, times(0)).findProfessorById(1L);
 	}
@@ -393,8 +393,8 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				.param("id","1")
 				)
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("professor", hasProperty("name", is("Professor B"))))
-               .andExpect(view().name("professors/form"));
+                       .andExpect(model().attribute("professor", hasProperty("name", is("Professor B"))))
+                       .andExpect(view().name("professors/form"));
 		
 		verify(service, times(1)).findProfessorById(1L);
 	}
@@ -413,7 +413,7 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 	
 		verify(service, times(0)).deleteProfessorById(1L);
 	}
@@ -456,7 +456,7 @@ public class ProfessorsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrl("/professors"));
+                       .andExpect(redirectedUrl("/professors"));
 	
 		verify(service, times(1)).deleteProfessorById(1L);
 	}
