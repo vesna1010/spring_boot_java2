@@ -16,14 +16,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-
 import java.util.Arrays;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
-
 import com.vesna1010.college.enums.Authority;
 import com.vesna1010.college.models.User;
 import com.vesna1010.college.services.UserService;
@@ -44,7 +42,7 @@ public class UsersControllerTest extends BaseControllerTest {
 
 		mockMvc.perform(get("/users"))
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(service, times(0)).findAllUsers(PAGEABLE);
 	}
@@ -75,9 +73,9 @@ public class UsersControllerTest extends BaseControllerTest {
 
 		mockMvc.perform(get("/users"))
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("page", hasProperty("content", hasSize(3))))
-               .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-               .andExpect(view().name("users/page"));
+                       .andExpect(model().attribute("page", hasProperty("content", hasSize(3))))
+                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+                       .andExpect(view().name("users/page"));
 		
 		verify(service, times(1)).findAllUsers(PAGEABLE);
 	}
@@ -91,7 +89,7 @@ public class UsersControllerTest extends BaseControllerTest {
 	private void renderEmptyFormNotLogged() throws Exception {
 		mockMvc.perform(get("/users/form"))
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -114,8 +112,8 @@ public class UsersControllerTest extends BaseControllerTest {
 	private void renderEmptyForm() throws Exception {
 		mockMvc.perform(get("/users/form"))
 		       .andExpect(status().isOk())
-               .andExpect(model().attribute("user", is(new User())))
-               .andExpect(view().name("users/form"));
+                       .andExpect(model().attribute("user", is(new User())))
+                       .andExpect(view().name("users/form"));
 	}
 	
 	@Test
@@ -140,7 +138,7 @@ public class UsersControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrlPattern("**/login"));
+                       .andExpect(redirectedUrlPattern("**/login"));
 		
 		verify(service, times(0)).saveUser(user);
 	}
@@ -271,7 +269,7 @@ public class UsersControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrl("/users"));
+                       .andExpect(redirectedUrl("/users"));
 		
 		verify(service, times(1)).deleteUserById(1L);
 	}
@@ -327,7 +325,7 @@ public class UsersControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-               .andExpect(redirectedUrl("/users"));
+                       .andExpect(redirectedUrl("/users"));
 		
 		verify(service, times(1)).disableUserById(1L);
 	}
