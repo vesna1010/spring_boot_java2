@@ -33,10 +33,10 @@ public abstract class Person {
 	private String address;
 	private byte[] photo;
 
-	public Person() {
+	protected Person() {
 	}
 
-	public Person(Long id, String name, String parent, LocalDate birthDate, String email, String telephone,
+	protected Person(Long id, String name, String parent, LocalDate birthDate, String email, String telephone,
 			Gender gender, String address, byte[] photo) {
 		this.id = id;
 		this.name = name;
