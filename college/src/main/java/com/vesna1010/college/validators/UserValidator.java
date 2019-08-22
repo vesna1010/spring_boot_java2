@@ -10,6 +10,10 @@ import com.vesna1010.college.services.UserService;
 @Component
 public class UserValidator implements Validator {
 
+	public static final String NAME_REGEX = "^[a-zA-Z\\s]{3,}$";
+	public static final String EMAIL_REGEX = "^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
+	public static final String PASSWORD_REGEX = "^\\S{8,15}$";
+
 	@Autowired
 	private UserService service;
 
@@ -22,11 +26,11 @@ public class UserValidator implements Validator {
 	public void validate(Object object, Errors errors) {
 		User user = (User) object;
 
-		if (!user.getName().matches("^[a-zA-Z\\s]{3,}$")) {
+		if (isInvalidName(user.getName())) {
 			errors.rejectValue("name", "user.name");
 		}
 
-		if (!user.getEmail().matches("^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$")) {
+		if (isInvalidEmail(user.getEmail())) {
 			errors.rejectValue("email", "user.email.pattern");
 		}
 
@@ -34,18 +38,34 @@ public class UserValidator implements Validator {
 			errors.rejectValue("email", "user.email.duplicated");
 		}
 
-		if (user.getPassword().matches("^\\S{8,15}$")) {
-			if (!user.getPassword().equals(user.getConfirmPassword())) {
+		if (isInvalidPassword(user.getPassword())) {
+			errors.rejectValue("password", "user.password");
+		} else {
+			if (isDifferentPasswords(user.getPassword(), user.getConfirmPassword())) {
 				errors.rejectValue("confirmPassword", "user.passwordConfirmDifferent");
 			}
-		} else {
-			errors.rejectValue("password", "user.password");
 		}
 
 		if (user.getAuthority() == null) {
 			errors.rejectValue("authority", "user.authority");
 		}
 
+	}
+
+	private boolean isInvalidName(String name) {
+		return (name == null || !name.matches(NAME_REGEX));
+	}
+
+	private boolean isInvalidEmail(String email) {
+		return (email == null || !email.matches(EMAIL_REGEX));
+	}
+
+	private boolean isInvalidPassword(String password) {
+		return (password == null || !password.matches(PASSWORD_REGEX));
+	}
+
+	public boolean isDifferentPasswords(String password, String confirmPassword) {
+		return !password.equals(confirmPassword);
 	}
 
 }
