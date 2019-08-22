@@ -10,9 +10,9 @@ import com.vesna1010.college.services.UserService;
 @Component
 public class UserValidator implements Validator {
 
-	public static final String NAME_REGEX = "^[a-zA-Z\\s]{3,}$";
-	public static final String EMAIL_REGEX = "^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
-	public static final String PASSWORD_REGEX = "^\\S{8,15}$";
+	public static final String NAME_REGEXP = "^[a-zA-Z\\s]{3,}$";
+	public static final String EMAIL_REGEXP = "^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
+	public static final String PASSWORD_REGEXP = "^\\S{8,15}$";
 
 	@Autowired
 	private UserService service;
@@ -53,15 +53,15 @@ public class UserValidator implements Validator {
 	}
 
 	private boolean isInvalidName(String name) {
-		return (name == null || !name.matches(NAME_REGEX));
+		return (name == null || !name.matches(NAME_REGEXP));
 	}
 
 	private boolean isInvalidEmail(String email) {
-		return (email == null || !email.matches(EMAIL_REGEX));
+		return (email == null || !email.matches(EMAIL_REGEXP));
 	}
 
 	private boolean isInvalidPassword(String password) {
-		return (password == null || !password.matches(PASSWORD_REGEX));
+		return (password == null || !password.matches(PASSWORD_REGEXP));
 	}
 
 	public boolean isDifferentPasswords(String password, String confirmPassword) {
