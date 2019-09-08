@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import com.vesna1010.college.enums.Gender;
 import com.vesna1010.college.models.Student;
+import com.vesna1010.college.models.StudyProgram;
 import com.vesna1010.college.repositories.StudentRepository;
 
 public class StudentRepositoryTest extends BaseRepositoryTest {
@@ -72,7 +73,8 @@ public class StudentRepositoryTest extends BaseRepositoryTest {
 	@Test
 	public void saveStudentTest() {
 		Student student = new Student("Student", "Parent", LocalDate.of(1995, Month.JANUARY, 6), "student@gmail.com",
-				"065 123 333", Gender.MALE, "Address", getPhoto(), LocalDate.now(), 1, studyProgram1);
+				"065 123 333", Gender.MALE, "Address", getPhoto(), LocalDate.now(), 1,
+				new StudyProgram(1L, "Study Program B"));
 
 		student = repository.save(student);
 
@@ -84,11 +86,12 @@ public class StudentRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void updateStudentTest() {
-		student1.setName("Student");
-		student1 = repository.save(student1);
-
 		Optional<Student> optional = repository.findById(1L);
 		Student student = optional.get();
+
+		student.setName("Student");
+		
+		student = repository.save(student);
 
 		assertThat(student.getName(), is("Student"));
 		assertThat(student.getExams(), hasSize(2));
