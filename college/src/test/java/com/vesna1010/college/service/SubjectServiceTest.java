@@ -8,7 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
@@ -16,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-
-import com.vesna1010.college.models.Professor;
 import com.vesna1010.college.models.Subject;
 import com.vesna1010.college.repositories.SubjectRepository;
 import com.vesna1010.college.services.SubjectService;
@@ -31,7 +28,8 @@ public class SubjectServiceTest extends BaseServiceTest {
 
 	@Test
 	public void findAllSubjectsByStudyProgramIdWithSortTest() {
-		when(repository.findAllByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
+		when(repository.findAllByStudyProgramId(1L, SORT))
+				.thenReturn(Arrays.asList(new Subject(1L, "Subject A"), new Subject(2L, "Subject B")));
 
 		List<Subject> subjects = service.findAllSubjectsByStudyProgramId(1L, SORT);
 
@@ -43,43 +41,41 @@ public class SubjectServiceTest extends BaseServiceTest {
 
 	@Test
 	public void findAllSubjectsWithPageableTest() {
-		when(repository.findAll(PAGEABLE))
-				.thenReturn(new PageImpl<Subject>(Arrays.asList(subject1, subject2, subject3, subject4)));
+		when(repository.findAll(PAGEABLE)).thenReturn(
+				new PageImpl<Subject>(Arrays.asList(new Subject(1L, "Subject A"), new Subject(2L, "Subject B"))));
 
 		Page<Subject> page = service.findAllSubjects(PAGEABLE);
 		List<Subject> subjects = page.getContent();
 
 		assertThat(page.getTotalPages(), is(1));
-		assertThat(subjects, hasSize(4));
-		assertThat(subjects.get(0).getName(), is("Subject B"));
-		assertThat(subjects.get(1).getName(), is("Subject D"));
-		assertThat(subjects.get(2).getName(), is("Subject A"));
-		assertThat(subjects.get(3).getName(), is("Subject C"));
+		assertThat(subjects, hasSize(2));
+		assertThat(subjects.get(0).getName(), is("Subject A"));
+		assertThat(subjects.get(1).getName(), is("Subject B"));
 		verify(repository, times(1)).findAll(PAGEABLE);
 	}
 
 	@Test
 	public void findAllSubjectsByStudyProgramIdWithPageableTest() {
-		when(repository.findAllByStudyProgramId(1L, PAGEABLE))
-				.thenReturn(new PageImpl<Subject>(Arrays.asList(subject1, subject3)));
+		when(repository.findAllByStudyProgramId(1L, PAGEABLE)).thenReturn(
+				new PageImpl<Subject>(Arrays.asList(new Subject(1L, "Subject A"), new Subject(2L, "Subject B"))));
 
 		Page<Subject> page = service.findAllSubjectsByStudyProgramId(1L, PAGEABLE);
 		List<Subject> subjects = page.getContent();
 
 		assertThat(page.getTotalPages(), is(1));
 		assertThat(subjects, hasSize(2));
-		assertThat(subjects.get(0).getName(), is("Subject B"));
-		assertThat(subjects.get(1).getName(), is("Subject A"));
+		assertThat(subjects.get(0).getName(), is("Subject A"));
+		assertThat(subjects.get(1).getName(), is("Subject B"));
 		verify(repository, times(1)).findAllByStudyProgramId(1L, PAGEABLE);
 	}
 
 	@Test
 	public void findSubjectByIdTest() {
-		when(repository.findById(1L)).thenReturn(Optional.of(subject1));
+		when(repository.findById(1L)).thenReturn(Optional.of(new Subject(1L, "Subject")));
 
 		Subject subject = service.findSubjectById(1L);
 
-		assertThat(subject.getName(), is("Subject B"));
+		assertThat(subject.getName(), is("Subject"));
 		verify(repository, times(1)).findById(1L);
 	}
 
@@ -92,14 +88,13 @@ public class SubjectServiceTest extends BaseServiceTest {
 
 	@Test
 	public void saveSubjectTest() {
-		Subject subject = new Subject("Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1)));
+		Subject subject = new Subject(1L, "Subject");
 
-		when(repository.save(subject)).thenReturn(
-				new Subject(5L, "Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1))));
+		when(repository.save(subject)).thenReturn(subject);
 
 		Subject subjectSaved = service.saveSubject(subject);
 
-		assertThat(subjectSaved.getId(), is(5L));
+		assertThat(subjectSaved.getId(), is(1L));
 		verify(repository, times(1)).save(subject);
 	}
 
