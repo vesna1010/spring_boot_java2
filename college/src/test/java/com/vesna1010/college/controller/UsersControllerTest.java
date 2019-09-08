@@ -1,7 +1,6 @@
 package com.vesna1010.college.controller;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Mockito.doNothing;
@@ -17,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
@@ -38,13 +38,9 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWitUsersNotLogged() throws Exception {
-		when(service.findAllUsers(PAGEABLE)).thenReturn(new PageImpl<User>(Arrays.asList(user1, user2, user3)));
-
 		mockMvc.perform(get("/users"))
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(service, times(0)).findAllUsers(PAGEABLE);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -54,12 +50,8 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWitUsersNotAuthorized() throws Exception {
-		when(service.findAllUsers(PAGEABLE)).thenReturn(new PageImpl<User>(Arrays.asList(user1, user2, user3)));
-
 		mockMvc.perform(get("/users"))
 		       .andExpect(status().isForbidden());
-		
-		verify(service, times(0)).findAllUsers(PAGEABLE);
 	}
 
 	@Test
@@ -69,13 +61,15 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWitUsers() throws Exception {
-		when(service.findAllUsers(PAGEABLE)).thenReturn(new PageImpl<User>(Arrays.asList(user1, user2, user3)));
+		List<User> users = Arrays.asList(new User(1L, "User A"), new User(2L, "User B"));
+
+		when(service.findAllUsers(PAGEABLE)).thenReturn(new PageImpl<User>(users));
 
 		mockMvc.perform(get("/users"))
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("page", hasProperty("content", hasSize(3))))
-                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-                       .andExpect(view().name("users/page"));
+		       .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
+		       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+		       .andExpect(view().name("users/page"));
 		
 		verify(service, times(1)).findAllUsers(PAGEABLE);
 	}
@@ -89,7 +83,7 @@ public class UsersControllerTest extends BaseControllerTest {
 	private void renderEmptyFormNotLogged() throws Exception {
 		mockMvc.perform(get("/users/form"))
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -112,8 +106,8 @@ public class UsersControllerTest extends BaseControllerTest {
 	private void renderEmptyForm() throws Exception {
 		mockMvc.perform(get("/users/form"))
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("user", is(new User())))
-                       .andExpect(view().name("users/form"));
+		       .andExpect(model().attribute("user", is(new User())))
+		       .andExpect(view().name("users/form"));
 	}
 	
 	@Test
@@ -123,12 +117,9 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveUserNotLoggedIn() throws Exception {
-		User user = new User("User", "user@gmail.com", "Password", Authority.USER);
-		
-		when(service.saveUser(user)).thenReturn(new User(4L, "User", "user@gmail.com", "Password", Authority.USER));
-		
 		mockMvc.perform(
 				post("/users/save")
+				.param("id", "1")
 				.param("name", "User")
 				.param("email", "user@gmail.com")
 				.param("password", "Password")
@@ -138,9 +129,7 @@ public class UsersControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(service, times(0)).saveUser(user);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -150,12 +139,9 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveUserNotAuthorized() throws Exception {
-		User user = new User("User", "user@gmail.com", "Password", Authority.USER);
-		
-		when(service.saveUser(user)).thenReturn(new User(4L, "User", "user@gmail.com", "Password", Authority.USER));
-		
 		mockMvc.perform(
 				post("/users/save")
+				.param("id", "1")
 				.param("name", "User")
 				.param("email", "user@gmail.com")
 				.param("password", "Password")
@@ -165,19 +151,18 @@ public class UsersControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(service, times(0)).saveUser(user);
 	}
 
 	@Test
 	@WithMockUser(authorities = "ADMIN")
 	public void saveUserValidFormTest() throws Exception {
-		User user = new User("User", "user@gmail.com", "Password", Authority.USER);
+		User user = new User(1L, "User", "user@gmail.com", "Password", Authority.USER);
 		
-		when(service.saveUser(user)).thenReturn(new User(4L, "User", "user@gmail.com", "Password", Authority.USER));
+		when(service.saveUser(user)).thenReturn(user);
 		
 		mockMvc.perform(
 				post("/users/save")
+				.param("id", "1")
 				.param("name", "User")
 				.param("email", "user@gmail.com")
 				.param("password", "Password")
@@ -196,12 +181,13 @@ public class UsersControllerTest extends BaseControllerTest {
 	@Test
 	@WithMockUser(authorities = "ADMIN")
 	public void saveUserInvalidFormTest() throws Exception {
-		User user = new User("User", "user@gmail.com", "New Password", Authority.USER);
+		User user = new User(1L, "User", "user@gmail.com", "New Password", Authority.USER);
 		
-		when(service.saveUser(user)).thenReturn(new User(4L, "User", "user@gmail.com", "Password", Authority.USER));
+		when(service.saveUser(user)).thenReturn(user);
 		
 		mockMvc.perform(
 				post("/users/save")
+				.param("id", "1")
 				.param("name", "User")
 				.param("email", "user@gmail.com")
 				.param("password", "New Password")
@@ -212,7 +198,7 @@ public class UsersControllerTest extends BaseControllerTest {
 				)
 		       .andExpect(status().isOk())
 		       .andExpect(model().attributeHasFieldErrors("user", "password"))
-		       .andExpect(model().attribute("user", hasProperty("id", is(nullValue()))))
+		       .andExpect(model().attribute("user", is(user)))
 		       .andExpect(view().name("users/form"));
 		
 		verify(service, times(0)).saveUser(user);
@@ -225,16 +211,12 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 	
 	private void deleteUserByIdNotLoggedIn() throws Exception {
-		doNothing().when(service).deleteUserById(1L);
-		
 		mockMvc.perform(
 				get("/users/delete")
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
 		       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(service, times(0)).deleteUserById(1L);
 	}
 
 	@Test
@@ -244,15 +226,11 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 	
 	private void deleteUserByIdNotAuthorized() throws Exception {
-		doNothing().when(service).deleteUserById(1L);
-		
 		mockMvc.perform(
 				get("/users/delete")
 				.param("id", "1")
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(service, times(0)).deleteUserById(1L);
 	}
 
 	@Test
@@ -269,7 +247,7 @@ public class UsersControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrl("/users"));
+		       .andExpect(redirectedUrl("/users"));
 		
 		verify(service, times(1)).deleteUserById(1L);
 	}
@@ -281,16 +259,12 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 	
 	private void disableUserByIdNotLoggedIn() throws Exception {
-		doNothing().when(service).disableUserById(1L);
-		
 		mockMvc.perform(
 				get("/users/disable")
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
 		       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(service, times(0)).disableUserById(1L);
 	}
 
 	@Test
@@ -300,15 +274,11 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 	
 	private void disableUserByIdNotAuthorized() throws Exception {
-		doNothing().when(service).disableUserById(1L);
-		
 		mockMvc.perform(
 				get("/users/disable")
 				.param("id", "1")
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(service, times(0)).disableUserById(1L);
 	}
 
 	@Test
@@ -325,7 +295,7 @@ public class UsersControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrl("/users"));
+		       .andExpect(redirectedUrl("/users"));
 		
 		verify(service, times(1)).disableUserById(1L);
 	}
@@ -343,54 +313,61 @@ public class UsersControllerTest extends BaseControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "userC@gmail.com", authorities = "PROFESSOR")
+	@WithMockUser(username = "user@gmail.com", authorities = "PROFESSOR")
 	public void renderFormWithUserWithAuthorityUserAndProfessorTest() throws Exception {
-		when(service.findUserByEmail("userC@gmail.com")).thenReturn(user3);
+		User user = new User(1L, "User", "user@gmail.com", "Password", Authority.PROFESSOR);
+		
+		when(service.findUserByEmail("user@gmail.com")).thenReturn(user);
 		
 		mockMvc.perform(get("/users/edit"))
 		       .andExpect(status().isOk())
-		       .andExpect(model().attribute("user", hasProperty("name", is("User C"))))
+		       .andExpect(model().attribute("user", hasProperty("name", is("User"))))
 		       .andExpect(view().name("users/update-password-form"));
 		
-		verify(service, times(1)).findUserByEmail("userC@gmail.com");
+		verify(service, times(1)).findUserByEmail("user@gmail.com");
 	}
 
 	@Test
-	@WithMockUser(username = "userB@gmail.com", authorities = "USER")
+	@WithMockUser(username = "user@gmail.com", authorities = "USER")
 	public void renderFormWithUserWithAuthorityUserTest() throws Exception {
-		when(service.findUserByEmail("userB@gmail.com")).thenReturn(user2);
+		User user = new User(1L, "User", "user@gmail.com", "Password", Authority.USER);
+		
+		when(service.findUserByEmail("user@gmail.com")).thenReturn(user);
+		
 		
 		mockMvc.perform(get("/users/edit"))
 		       .andExpect(status().isOk())
-		       .andExpect(model().attribute("user", hasProperty("name", is("User B"))))
+		       .andExpect(model().attribute("user", hasProperty("name", is("User"))))
 		       .andExpect(view().name("users/update-password-form"));
 		
-		verify(service, times(1)).findUserByEmail("userB@gmail.com");
+		verify(service, times(1)).findUserByEmail("user@gmail.com");
 	}
 
 	@Test
-	@WithMockUser(username = "userA@gmail.com", authorities = "ADMIN")
+	@WithMockUser(username = "user@gmail.com", authorities = "ADMIN")
 	public void renderFormWithUserWithAuthorityAdminTest() throws Exception {
-		when(service.findUserByEmail("userA@gmail.com")).thenReturn(user1);
+		User user = new User(1L, "User", "user@gmail.com", "Password", Authority.ADMIN);
+		
+		when(service.findUserByEmail("user@gmail.com")).thenReturn(user);
 		
 		mockMvc.perform(get("/users/edit"))
 		       .andExpect(status().isOk())
-		       .andExpect(model().attribute("user", hasProperty("name", is("User A"))))
+		       .andExpect(model().attribute("user", hasProperty("name", is("User"))))
 		       .andExpect(view().name("users/update-password-form"));
 		
-		verify(service, times(1)).findUserByEmail("userA@gmail.com");
+		verify(service, times(1)).findUserByEmail("user@gmail.com");
 	}
 
 	@Test
 	@WithMockUser(username = "user@gmail.com", authorities = "USER")
 	public void updatePasswordValidFormTest() throws Exception {
-		User user = new User(4L, "User", "user@gmail.com", "Password", Authority.USER);
+		User user = new User(1L, "User", "user@gmail.com", "Password", Authority.USER);
 		
-		when(service.saveUser(user)).thenReturn(new User(4L, "User", "user@gmail.com", "Password", Authority.USER));
+		when(service.saveUser(user)).thenReturn(user);
 		
 		mockMvc.perform(
 				post("/users/update")
-				.param("id", "4")
+				.param("id", "1")
 				.param("name", "User")
 				.param("email", "user@gmail.com")
 				.param("password", "Password")
@@ -410,13 +387,13 @@ public class UsersControllerTest extends BaseControllerTest {
 	@Test
 	@WithMockUser(username = "user@gmail.com", authorities = "USER")
 	public void updatePasswordInvalidFormTest() throws Exception {
-		User user = new User(4L, "User", "user@gmail.com", "Password", Authority.USER);
+		User user = new User(1L, "User", "user@gmail.com", "Password", Authority.USER);
 		
-		when(service.saveUser(user)).thenReturn(new User(4L, "User", "user@gmail.com", "Password", Authority.USER));
+		when(service.saveUser(user)).thenReturn(user);
 		
 		mockMvc.perform(
 				post("/users/update")
-				.param("id", "4")
+				.param("id", "1")
 				.param("name", "User")
 				.param("email", "user@gmail.com")
 				.param("password", "Password")
