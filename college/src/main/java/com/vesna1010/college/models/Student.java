@@ -28,6 +28,14 @@ public class Student extends Person {
 
 	public Student() {
 	}
+	
+	public Student(Long id, String name) {
+		super(id, name);
+	}
+	
+	public Student(Long id, String name, StudyProgram studyProgram) {
+		this(id, name, null, null, null, null, null, null,null, null, null, studyProgram);
+	}
 
 	public Student(String name, String parent, LocalDate birthDate, String email, String telephone, Gender gender,
 			String address, byte[] photo, LocalDate startDate, Integer year, StudyProgram studyProgram) {
