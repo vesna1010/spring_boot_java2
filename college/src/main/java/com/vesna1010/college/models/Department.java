@@ -27,6 +27,10 @@ public class Department {
 	public Department() {
 	}
 
+	public Department(Long id, String name) {
+		this(id, name, null);
+	}
+
 	public Department(String name, LocalDate createdOn) {
 		this(null, name, createdOn);
 	}
