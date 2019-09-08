@@ -2,9 +2,9 @@ package com.vesna1010.college.controller;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
@@ -39,14 +40,9 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithDepartmentsNotLoggedIn() throws Exception {
-		when(service.findAllDepartments(PAGEABLE))
-				.thenReturn(new PageImpl<Department>(Arrays.asList(department1, department2)));
-		
 		mockMvc.perform(get("/departments"))
-	               .andExpect(status().is3xxRedirection())
-	               .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(service, times(0)).findAllDepartments(PAGEABLE);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -68,14 +64,16 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithDepartments() throws Exception {
-		when(service.findAllDepartments(PAGEABLE))
-				.thenReturn(new PageImpl<Department>(Arrays.asList(department1, department2)));
-	
+		List<Department> departments = Arrays.asList(new Department(1L, "Department A"),
+				new Department(2L, "Department B"));
+
+		when(service.findAllDepartments(PAGEABLE)).thenReturn(new PageImpl<Department>(departments));
+
 		mockMvc.perform(get("/departments"))
-	               .andExpect(status().isOk())
-	               .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
-	               .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-	               .andExpect(view().name("departments/page"));
+		       .andExpect(status().isOk())
+		       .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
+		       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+		       .andExpect(view().name("departments/page"));
 		
 		verify(service, times(1)).findAllDepartments(PAGEABLE);
 	}
@@ -88,8 +86,8 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	
 	private void renderEmptyFormNotLoggedIn() throws Exception {
 		mockMvc.perform(get("/departments/form"))
-                       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -118,8 +116,8 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	private void renderEmptyForm() throws Exception {
 		mockMvc.perform(get("/departments/form"))
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("department", is(new Department())))
-                       .andExpect(view().name("departments/form"));
+		       .andExpect(model().attribute("department", is(new Department())))
+		       .andExpect(view().name("departments/form"));
 	}
 	
 	@Test
@@ -129,21 +127,15 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveDepartmentNotLoggedIn() throws Exception {
-		Department department = new Department("Department", LocalDate.of(2019, Month.JANUARY, 1));
-		
-		when(service.saveDepartment(department))
-				.thenReturn(new Department(1L, "Department", LocalDate.of(2019, Month.JANUARY, 1)));
-		
 		mockMvc.perform(
 				post("/departments/save")
+				.param("id", "1")
 				.param("name", "Department")
 				.param("createdOn", "01.01.2019")
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(service, times(0)).saveDepartment(department);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -153,20 +145,14 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveDepartmentNotAuthorized() throws Exception {
-		Department department = new Department("Department", LocalDate.of(2019, Month.JANUARY, 1));
-		
-		when(service.saveDepartment(department))
-				.thenReturn(new Department(1L, "Department", LocalDate.of(2019, Month.JANUARY, 1)));
-		
 		mockMvc.perform(
 				post("/departments/save")
+				.param("id", "1")
 				.param("name", "Department")
 				.param("createdOn", "01.01.2019")
 				.with(csrf())
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(service, times(0)).saveDepartment(department);
 	}
 	
 	@Test
@@ -182,13 +168,13 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	}
 
 	private void saveDepartment() throws Exception {
-		Department department = new Department("Department", LocalDate.of(2019, Month.JANUARY, 1));
+		Department department = new Department(1L, "Department", LocalDate.of(2019, Month.JANUARY, 1));
 		
-		when(service.saveDepartment(department))
-				.thenReturn(new Department(1L, "Department", LocalDate.of(2019, Month.JANUARY, 1)));
+		when(service.saveDepartment(department)).thenReturn(department);
 		
 		mockMvc.perform(
 				post("/departments/save")
+				.param("id", "1")
 				.param("name", "Department")
 				.param("createdOn", "01.01.2019")
 				.with(csrf())
@@ -203,23 +189,23 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	@Test
 	@WithMockUser(authorities = "USER")
 	public void saveDepartmentInvalidFormTest() throws Exception {
-		Department department = new Department("Department ??", LocalDate.of(2019, Month.JANUARY, 1));
+		Department department = new Department(1L, "Department ??", LocalDate.of(2019, Month.JANUARY, 1));
 		
-		when(service.saveDepartment(department))
-				.thenReturn(new Department(1L, "Department ??", LocalDate.of(2019, Month.JANUARY, 1)));
+		when(service.saveDepartment(department)).thenReturn(department);
 		
 		mockMvc.perform(
 				post("/departments/save")
+				.param("id", "1")
 				.param("name", "Department ??")
 				.param("createdOn", "01.01.2019")
 				.with(csrf())
 				)
 		       .andExpect(status().isOk())
 		       .andExpect(model().attributeHasFieldErrors("department", "name"))
-		       .andExpect(model().attribute("department", hasProperty("id", is(nullValue()))))
+		       .andExpect(model().attribute("department", is(department)))
 		       .andExpect(view().name("departments/form"));
 		
-		verify(service, times(0)).saveDepartment(department);
+		verify(service, never()).saveDepartment(department);
 	}
 
 	@Test
@@ -228,17 +214,13 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 		renderFormWithDepartmentNotLoggedIn();
 	}
 	
-	private void renderFormWithDepartmentNotLoggedIn() throws Exception {
-		when(service.findDepartmentById(1L)).thenReturn(department1);
-		
+	private void renderFormWithDepartmentNotLoggedIn() throws Exception {	
 		mockMvc.perform(
 				get("/departments/edit")
 				.param("id", "1")
 				)
-                       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(service, times(0)).findDepartmentById(1L);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -248,15 +230,11 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderFormWithDepartmentNotAuthorized() throws Exception {
-		when(service.findDepartmentById(1L)).thenReturn(department1);
-		
 		mockMvc.perform(
 				get("/departments/edit")
 				.param("id", "1")
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(service, times(0)).findDepartmentById(1L);
 	}
 
 	@Test
@@ -272,15 +250,17 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderFormWithDepartment() throws Exception {
-		when(service.findDepartmentById(1L)).thenReturn(department1);
+		Department department = new Department(1L, "Department");
 		
+		when(service.findDepartmentById(1L)).thenReturn(department);
+	
 		mockMvc.perform(
 				get("/departments/edit")
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("department", hasProperty("name", is("Department B"))))
-                       .andExpect(view().name("departments/form"));
+		       .andExpect(model().attribute("department", hasProperty("name", is("Department"))))
+		       .andExpect(view().name("departments/form"));
 		
 		verify(service, times(1)).findDepartmentById(1L);
 	}
@@ -292,16 +272,12 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 	}
 	
 	private void deleteDepartmentByIdNotLoggedIn() throws Exception {
-		doNothing().when(service).deleteDepartmentById(1L);
-		
 		mockMvc.perform(
 				get("/departments/delete")
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-	
-		verify(service, times(0)).deleteDepartmentById(1L);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -310,16 +286,12 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 		deleteDepartmentByIdNotAuthorized();
 	}
 	
-	private void deleteDepartmentByIdNotAuthorized() throws Exception {
-		doNothing().when(service).deleteDepartmentById(1L);
-		
+	private void deleteDepartmentByIdNotAuthorized() throws Exception {	
 		mockMvc.perform(
 				get("/departments/delete")
 				.param("id", "1")
 				)
 		       .andExpect(status().isForbidden());
-	
-		verify(service, times(0)).deleteDepartmentById(1L);
 	}
 
 	@Test
@@ -342,7 +314,7 @@ public class DepartmentsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrl("/departments"));
+		       .andExpect(redirectedUrl("/departments"));
 	
 		verify(service, times(1)).deleteDepartmentById(1L);
 	}
