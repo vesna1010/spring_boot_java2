@@ -1,10 +1,10 @@
 package com.vesna1010.college.controller;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,12 +18,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import com.vesna1010.college.models.Professor;
+import com.vesna1010.college.models.StudyProgram;
 import com.vesna1010.college.models.Subject;
 import com.vesna1010.college.services.ProfessorService;
 import com.vesna1010.college.services.StudyProgramService;
@@ -45,14 +47,9 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithSubjectsNotLoggedIn() throws Exception {
-		when(subjectService.findAllSubjects(PAGEABLE)).thenReturn(
-				new PageImpl<Subject>(Arrays.asList(subject1, subject2, subject3, subject4)));
-	
 		mockMvc.perform(get("/subjects"))
-	               .andExpect(status().is3xxRedirection())
-	               .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(subjectService, times(0)).findAllSubjects(PAGEABLE);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -74,14 +71,17 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithSubjects() throws Exception {
-		when(subjectService.findAllSubjects(PAGEABLE)).thenReturn(
-				new PageImpl<Subject>(Arrays.asList(subject1, subject2, subject3, subject4)));
-	
+		StudyProgram studyProgram = new StudyProgram(1L, "Study Program");
+		List<Subject> subjects = Arrays.asList(new Subject(1L, "Subject A", studyProgram),
+				new Subject(2L, "Subject B", studyProgram));
+
+		when(subjectService.findAllSubjects(PAGEABLE)).thenReturn(new PageImpl<Subject>(subjects));
+		
 		mockMvc.perform(get("/subjects"))
 		       .andExpect(status().isOk())
-	               .andExpect(model().attribute("page", hasProperty("content", hasSize(4))))
-                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-                       .andExpect(view().name("subjects/page"));
+		       .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
+		       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+		       .andExpect(view().name("subjects/page"));
 		
 		verify(subjectService, times(1)).findAllSubjects(PAGEABLE);
 	}
@@ -93,17 +93,12 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithSubjectsByStudyProgramIdNotLoggedIn() throws Exception {
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, PAGEABLE)).thenReturn(
-				new PageImpl<Subject>(Arrays.asList(subject1, subject3)));
-	
 		mockMvc.perform(
 				get("/subjects")
 				.param("id", "1")
 				)
-	               .andExpect(status().is3xxRedirection())
-	               .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, PAGEABLE);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -125,17 +120,20 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithSubjectsByStudyProgramId() throws Exception {
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, PAGEABLE)).thenReturn(
-				new PageImpl<Subject>(Arrays.asList(subject1, subject3)));
-	
+		StudyProgram studyProgram = new StudyProgram(1L, "Study Program");
+		List<Subject> subjects = Arrays.asList(new Subject(1L, "Subject A", studyProgram),
+				new Subject(2L, "Subject B", studyProgram));
+
+		when(subjectService.findAllSubjectsByStudyProgramId(1L, PAGEABLE)).thenReturn(new PageImpl<Subject>(subjects));
+
 		mockMvc.perform(
 				get("/subjects")
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
-                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-                       .andExpect(view().name("subjects/page"));
+		       .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
+		       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+		       .andExpect(view().name("subjects/page"));
 		
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, PAGEABLE);
 	}
@@ -147,16 +145,9 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderEmptyFormNotLoggedIn() throws Exception {
-		when(professorService.findAllProfessors(SORT)).thenReturn(Arrays.asList(professor3, professor1, professor2));
-		when(studyProgramService.findAllStudyPrograms(SORT))
-				.thenReturn(Arrays.asList(studyProgram3, studyProgram1, studyProgram2));
-		
 		mockMvc.perform(get("/subjects/form"))
-                       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(professorService, times(0)).findAllProfessors(SORT);
-		verify(studyProgramService, times(0)).findAllStudyPrograms(SORT);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -166,15 +157,8 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderEmptyFormNotAuthorized() throws Exception {
-		when(professorService.findAllProfessors(SORT)).thenReturn(Arrays.asList(professor3, professor1, professor2));
-		when(studyProgramService.findAllStudyPrograms(SORT))
-				.thenReturn(Arrays.asList(studyProgram3, studyProgram1, studyProgram2));
-		
 		mockMvc.perform(get("/subjects/form"))
 		       .andExpect(status().isForbidden());
-		
-		verify(professorService, times(0)).findAllProfessors(SORT);
-		verify(studyProgramService, times(0)).findAllStudyPrograms(SORT);
 	}
 	
 	@Test
@@ -190,16 +174,19 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderEmptyForm() throws Exception {
-		when(professorService.findAllProfessors(SORT)).thenReturn(Arrays.asList(professor3, professor1, professor2));
-		when(studyProgramService.findAllStudyPrograms(SORT))
-				.thenReturn(Arrays.asList(studyProgram3, studyProgram1, studyProgram2));
-		
+		List<Professor> professors = Arrays.asList(new Professor(1L, "Professor A"), new Professor(2L, "Professor B"));
+		List<StudyProgram> studyPrograms = Arrays.asList(new StudyProgram(1L, "Study Program A"),
+				new StudyProgram(2L, "Study Program B"));
+
+		when(professorService.findAllProfessors(SORT)).thenReturn(professors);
+		when(studyProgramService.findAllStudyPrograms(SORT)).thenReturn(studyPrograms);
+
 		mockMvc.perform(get("/subjects/form"))
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("subject", is(new Subject())))
-                       .andExpect(model().attribute("professors", hasSize(3)))
-                       .andExpect(model().attribute("studyPrograms", hasSize(3)))
-                       .andExpect(view().name("subjects/form"));
+		       .andExpect(model().attribute("subject", is(new Subject())))
+		       .andExpect(model().attribute("professors", hasSize(2)))
+		       .andExpect(model().attribute("studyPrograms", hasSize(2)))
+		       .andExpect(view().name("subjects/form"));
 		
 		verify(professorService, times(1)).findAllProfessors(SORT);
 		verify(studyProgramService, times(1)).findAllStudyPrograms(SORT);
@@ -212,26 +199,16 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveSubjectNotLoggedIn() throws Exception {
-		Subject subject = new Subject("Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1)));
-
-		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram1);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(subjectService.saveSubject(subject)).thenReturn(
-				new Subject(5L, "Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1))));
-	
 		mockMvc.perform(
 				post("/subjects/save")
+				.param("id", "1")
 				.param("name", "Subject")
 				.param("studyProgram", "1")
 				.param("professors", "1")
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(studyProgramService, times(0)).findStudyProgramById(1L);
-		verify(professorService, times(0)).findProfessorById(1L);
-	        verify(subjectService, times(0)).saveSubject(subject);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -241,25 +218,15 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveSubjectNotAuthorized() throws Exception {
-		Subject subject = new Subject("Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1)));
-
-		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram1);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(subjectService.saveSubject(subject)).thenReturn(
-				new Subject(5L, "Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1))));
-	
 		mockMvc.perform(
 				post("/subjects/save")
+				.param("id", "1")
 				.param("name", "Subject")
 				.param("studyProgram", "1")
 				.param("professors", "1")
 				.with(csrf())
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(studyProgramService, times(0)).findStudyProgramById(1L);
-		verify(professorService, times(0)).findProfessorById(1L);
-	        verify(subjectService, times(0)).saveSubject(subject);
 	}
 	
 	@Test
@@ -275,61 +242,64 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveSubject() throws Exception {
-		Subject subject = new Subject("Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1)));
+		StudyProgram studyProgram = new StudyProgram(1L, "Study Program");
+		Professor professor = new Professor(1L, "Professor");
+		Subject subject = new Subject(1L, "Subject", studyProgram, new HashSet<Professor>(Arrays.asList(professor)));
 
-		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram1);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(subjectService.saveSubject(subject)).thenReturn(
-				new Subject(5L, "Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1))));
+		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram);
+		when(professorService.findProfessorById(1L)).thenReturn(professor);
+		when(subjectService.saveSubject(subject)).thenReturn(subject);
 	
 		mockMvc.perform(
 				post("/subjects/save")
+				.param("id", "1")
 				.param("name", "Subject")
 				.param("studyProgram", "1")
 				.param("professors", "1")
 				.with(csrf())
 				)
-	               .andExpect(model().hasNoErrors())
-	               .andExpect(status().is3xxRedirection())
-	               .andExpect(redirectedUrl("/subjects/form"));
+		       .andExpect(model().hasNoErrors())
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrl("/subjects/form"));
 		
-		verify(studyProgramService, times(1)).findStudyProgramById(1L);
-		verify(professorService, times(1)).findProfessorById(1L);
-	        verify(subjectService, times(1)).saveSubject(subject);
+	    verify(studyProgramService, times(1)).findStudyProgramById(1L);
+	    verify(professorService, times(1)).findProfessorById(1L);
+	    verify(subjectService, times(1)).saveSubject(subject);
 	}
 	
 	@Test
 	@WithMockUser(authorities = "USER")
 	public void saveSubjectInvalidFormTest() throws Exception {
-		Subject subject = new Subject("Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1)));
+		StudyProgram studyProgram = new StudyProgram(1L, "Study Program");
+		Professor professor = new Professor(1L, "Professor");
+		Subject subject = new Subject(1L, "Subject ??", studyProgram, new HashSet<Professor>(Arrays.asList(professor)));
 
-		when(professorService.findAllProfessors(SORT)).thenReturn(Arrays.asList(professor3, professor1, professor2));
-		when(studyProgramService.findAllStudyPrograms(SORT))
-				.thenReturn(Arrays.asList(studyProgram3, studyProgram1, studyProgram2));
-		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram1);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(subjectService.saveSubject(subject)).thenReturn(
-				new Subject(5L, "Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1))));
-		
+		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram);
+		when(professorService.findProfessorById(1L)).thenReturn(professor);
+		when(subjectService.saveSubject(subject)).thenReturn(subject);
+		when(professorService.findAllProfessors(SORT)).thenReturn(Arrays.asList(professor));
+		when(studyProgramService.findAllStudyPrograms(SORT)).thenReturn(Arrays.asList(studyProgram));
+	
 		mockMvc.perform(
 				post("/subjects/save")
+				.param("id", "1")
 				.param("name", "Subject ??")
 				.param("studyProgram", "1")
 				.param("professors", "1")
 				.with(csrf())
 				)
 		       .andExpect(status().isOk())
-	               .andExpect(model().attributeHasFieldErrors("subject", "name"))
-	               .andExpect(model().attribute("subject", hasProperty("id", is(nullValue()))))
-	               .andExpect(model().attribute("professors", hasSize(3)))
-	               .andExpect(model().attribute("studyPrograms", hasSize(3)))
-	               .andExpect(view().name("subjects/form"));
+		       .andExpect(model().attributeHasFieldErrors("subject", "name"))
+		       .andExpect(model().attribute("subject", is(subject)))
+		       .andExpect(model().attribute("professors", hasSize(1)))
+		       .andExpect(model().attribute("studyPrograms", hasSize(1)))
+		       .andExpect(view().name("subjects/form"));
 		
-		verify(professorService, times(1)).findAllProfessors(SORT);
-		verify(studyProgramService, times(1)).findAllStudyPrograms(SORT);
-		verify(studyProgramService, times(1)).findStudyProgramById(1L);
-		verify(professorService, times(1)).findProfessorById(1L);
-	        verify(subjectService, times(0)).saveSubject(subject);
+	    verify(studyProgramService, times(1)).findStudyProgramById(1L);
+	    verify(professorService, times(2)).findProfessorById(1L);
+	    verify(subjectService, never()).saveSubject(subject);
+	    verify(professorService, times(1)).findAllProfessors(SORT);
+	    verify(studyProgramService, times(1)).findAllStudyPrograms(SORT);
 	}
 	
 	@Test
@@ -339,21 +309,12 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void rederFormWithSubjectNotLoggedIn() throws Exception {
-		when(professorService.findAllProfessors(SORT)).thenReturn(Arrays.asList(professor3, professor1, professor2));
-		when(studyProgramService.findAllStudyPrograms(SORT))
-				.thenReturn(Arrays.asList(studyProgram3, studyProgram1, studyProgram2));
-		when(subjectService.findSubjectById(1L)).thenReturn(subject1);
-		
 		mockMvc.perform(
 				get("/subjects/edit")
 				.param("id", "1")
 				)
-                       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(professorService, times(0)).findAllProfessors(SORT);
-		verify(studyProgramService, times(0)).findAllStudyPrograms(SORT);
-		verify(subjectService, times(0)).findSubjectById(1L);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -363,20 +324,11 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void rederFormWithSubjectNotAuthorized() throws Exception {
-		when(professorService.findAllProfessors(SORT)).thenReturn(Arrays.asList(professor3, professor1, professor2));
-		when(studyProgramService.findAllStudyPrograms(SORT))
-				.thenReturn(Arrays.asList(studyProgram3, studyProgram1, studyProgram2));
-		when(subjectService.findSubjectById(1L)).thenReturn(subject1);
-		
 		mockMvc.perform(
 				get("/subjects/edit")
 				.param("id", "1")
 				)
-                       .andExpect(status().isForbidden());
-		
-		verify(professorService, times(0)).findAllProfessors(SORT);
-		verify(studyProgramService, times(0)).findAllStudyPrograms(SORT);
-		verify(subjectService, times(0)).findSubjectById(1L);
+		       .andExpect(status().isForbidden());
 	}
 	
 	@Test
@@ -392,20 +344,23 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void rederFormWithSubject() throws Exception {
-		when(professorService.findAllProfessors(SORT)).thenReturn(Arrays.asList(professor3, professor1, professor2));
-		when(studyProgramService.findAllStudyPrograms(SORT))
-				.thenReturn(Arrays.asList(studyProgram3, studyProgram1, studyProgram2));
-		when(subjectService.findSubjectById(1L)).thenReturn(subject1);
+		Subject subject = new Subject(1L, "Subject");
+		List<Professor> professors = Arrays.asList(new Professor(1L, "Professor"));
+		List<StudyProgram> studyPrograms = Arrays.asList(new StudyProgram(1L, "Study Program"));
 		
+		when(subjectService.findSubjectById(1L)).thenReturn(subject);
+		when(professorService.findAllProfessors(SORT)).thenReturn(professors);
+		when(studyProgramService.findAllStudyPrograms(SORT)).thenReturn(studyPrograms);
+	
 		mockMvc.perform(
 				get("/subjects/edit")
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("subject", hasProperty("name", is("Subject B"))))
-                       .andExpect(model().attribute("professors", hasSize(3)))
-                       .andExpect(model().attribute("studyPrograms", hasSize(3)))
-                       .andExpect(view().name("subjects/form"));
+		       .andExpect(model().attribute("subject", hasProperty("name", is("Subject"))))
+		       .andExpect(model().attribute("professors", hasSize(1)))
+		       .andExpect(model().attribute("studyPrograms", hasSize(1)))
+		       .andExpect(view().name("subjects/form"));
 		
 		verify(professorService, times(1)).findAllProfessors(SORT);
 		verify(studyProgramService, times(1)).findAllStudyPrograms(SORT);
@@ -419,16 +374,12 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void deleteSubjectByIdNotLoggedIn() throws Exception {
-		doNothing().when(subjectService).deleteSubjectById(1L);
-		
 		mockMvc.perform(
 				get("/subjects/delete")
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-	
-		verify(subjectService, times(0)).deleteSubjectById(1L);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -438,15 +389,11 @@ public class SubjectsControllerTest extends BaseControllerTest {
 	}
 	
 	private void deleteSubjectByIdNotAuthorized() throws Exception {
-		doNothing().when(subjectService).deleteSubjectById(1L);
-		
 		mockMvc.perform(
 				get("/subjects/delete")
 				.param("id", "1")
 				)
 		       .andExpect(status().isForbidden());
-	
-		verify(subjectService, times(0)).deleteSubjectById(1L);
 	}
 	
 	@Test
@@ -469,7 +416,7 @@ public class SubjectsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrl("/subjects"));
+		       .andExpect(redirectedUrl("/subjects"));
 	
 		verify(subjectService, times(1)).deleteSubjectById(1L);
 	}
