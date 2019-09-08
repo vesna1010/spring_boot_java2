@@ -34,6 +34,14 @@ public class StudyProgram {
 	public StudyProgram() {
 	}
 
+	public StudyProgram(Long id, String name) {
+		this(id, name, null);
+	}
+
+	public StudyProgram(Long id, String name, Department department) {
+		this(id, name, null, null, department);
+	}
+
 	public StudyProgram(String name, LocalDate createdOn, Integer duration, Department department) {
 		this(null, name, createdOn, duration, department);
 	}
