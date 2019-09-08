@@ -23,6 +23,10 @@ public class Professor extends Person {
 
 	public Professor() {
 	}
+	
+	public Professor(Long id, String name) {
+		super(id, name);
+	}
 
 	public Professor(String name, String parent, LocalDate birthDate, String email, String telephone, Gender gender,
 			String address, byte[] photo, String title) {
