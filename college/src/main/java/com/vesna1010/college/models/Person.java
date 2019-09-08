@@ -36,6 +36,10 @@ public abstract class Person {
 	protected Person() {
 	}
 
+	protected Person(Long id, String name) {
+		this(id, name, null, null, null, null, null, null, null);
+	}
+
 	protected Person(Long id, String name, String parent, LocalDate birthDate, String email, String telephone,
 			Gender gender, String address, byte[] photo) {
 		this.id = id;
@@ -70,7 +74,7 @@ public abstract class Person {
 		this.name = name;
 	}
 
-	@Pattern(regexp = "^[a-zA-Z\\s]{5,}$", message = "{person.parent}" )
+	@Pattern(regexp = "^[a-zA-Z\\s]{5,}$", message = "{person.parent}")
 	@Column(name = "PARENT", nullable = false)
 	public String getParent() {
 		return parent;
@@ -142,7 +146,7 @@ public abstract class Person {
 	public void setPhoto(byte[] photo) {
 		this.photo = photo;
 	}
-	
+
 	public void setFile(MultipartFile file) {
 		if (!file.isEmpty()) {
 			try {
@@ -151,7 +155,7 @@ public abstract class Person {
 			}
 		}
 	}
-	
+
 	@Transient
 	public MultipartFile getFile() {
 		return null;
