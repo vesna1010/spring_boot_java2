@@ -32,11 +32,19 @@ public class Subject {
 	public Subject() {
 	}
 
-	public Subject(String name, StudyProgram studyProgram,  Set<Professor> professors) {
+	public Subject(Long id, String name) {
+		this(id, name, null);
+	}
+
+	public Subject(Long id, String name, StudyProgram studyProgram) {
+		this(id, name, studyProgram, new HashSet<Professor>());
+	}
+
+	public Subject(String name, StudyProgram studyProgram, Set<Professor> professors) {
 		this(null, name, studyProgram, professors);
 	}
 
-	public Subject(Long id, String name, StudyProgram studyProgram,  Set<Professor> professors) {
+	public Subject(Long id, String name, StudyProgram studyProgram, Set<Professor> professors) {
 		this.id = id;
 		this.name = name;
 		this.studyProgram = studyProgram;
@@ -77,10 +85,9 @@ public class Subject {
 
 	@NotEmpty(message = "{subject.professors}")
 	@ManyToMany
-	@JoinTable(
-			name = "SUBJECTS_PROFESSORS", 
-			joinColumns = @JoinColumn(name = "SUBJECT_ID", referencedColumnName = "ID"), 
-			inverseJoinColumns = @JoinColumn(name = "PROFESSOR_ID", referencedColumnName = "ID"))
+	@JoinTable(name = "SUBJECTS_PROFESSORS", 
+		   joinColumns = @JoinColumn(name = "SUBJECT_ID", referencedColumnName = "ID"), 
+		   inverseJoinColumns = @JoinColumn(name = "PROFESSOR_ID", referencedColumnName = "ID"))
 	public Set<Professor> getProfessors() {
 		return professors;
 	}
