@@ -4,7 +4,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.*;
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
@@ -56,7 +55,7 @@ public class DepartmentRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void saveDepartmentTest() {
-		Department department = new Department("Department C", LocalDate.of(2018, Month.SEPTEMBER, 3));
+		Department department = new Department("Department", LocalDate.now());
 
 		department = repository.save(department);
 
@@ -68,12 +67,13 @@ public class DepartmentRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void updateDepartmentTest() {
-		department1.setName("Department");
-		department1 = repository.save(department1);
-
 		Optional<Department> optional = repository.findById(1L);
 		Department department = optional.get();
 
+		department.setName("Department");
+
+		department = repository.save(department);
+	
 		assertThat(department.getName(), is("Department"));
 		assertThat(department.getStudyPrograms(), hasSize(2));
 		assertThat(repository.count(), is(2L));
