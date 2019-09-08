@@ -32,6 +32,10 @@ public class User implements UserDetails {
 	public User() {
 	}
 
+	public User(Long id, String name) {
+		this(id, name, null, null, null);
+	}
+	
 	public User(String name, String email, String password, Authority authority) {
 		this(null, name, email, password, authority);
 	}
