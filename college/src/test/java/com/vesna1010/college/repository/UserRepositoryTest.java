@@ -7,7 +7,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Optional;
+
 import javax.transaction.Transactional;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -86,13 +88,15 @@ public class UserRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void updateUserTest() {
+		Optional<User> optional = repository.findByEmail("userA@gmail.com");
+		User user = optional.get();
 		String password = encoder.encode("NewPassword");
 
-		user1.setPassword(password);
-		user1 = repository.save(user1);
+		user.setPassword(password);
+		user = repository.save(user);
 
-		Optional<User> optional = repository.findById(1L);
-		User user = optional.get();
+		optional = repository.findById(1L);
+		user = optional.get();
 
 		assertThat(user.getPassword(), is(password));
 		assertThat(repository.count(), is(3L));
