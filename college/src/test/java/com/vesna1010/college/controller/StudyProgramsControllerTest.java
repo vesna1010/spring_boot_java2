@@ -1,10 +1,10 @@
 package com.vesna1010.college.controller;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,12 +19,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import com.vesna1010.college.controller.BaseControllerTest;
+import com.vesna1010.college.models.Department;
 import com.vesna1010.college.models.StudyProgram;
 import com.vesna1010.college.services.DepartmentService;
 import com.vesna1010.college.services.StudyProgramService;
@@ -43,14 +45,9 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithStudyProgramsNotLoggedIn() throws Exception {
-		when(studyProgramService.findAllStudyPrograms(PAGEABLE)).thenReturn(
-				new PageImpl<StudyProgram>(Arrays.asList(studyProgram1, studyProgram2, studyProgram3)));
-	
 		mockMvc.perform(get("/study_programs"))
-	               .andExpect(status().is3xxRedirection())
-	               .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(studyProgramService, times(0)).findAllStudyPrograms(PAGEABLE);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -72,14 +69,17 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithStudyPrograms() throws Exception {
-		when(studyProgramService.findAllStudyPrograms(PAGEABLE)).thenReturn(
-				new PageImpl<StudyProgram>(Arrays.asList(studyProgram1, studyProgram2, studyProgram3)));
-		
+		Department department = new Department(1L, "Department");
+		List<StudyProgram> studyPrograms = Arrays.asList(new StudyProgram(1L, "Study Program A", department),
+				new StudyProgram(2L, "Study Program B", department));
+
+		when(studyProgramService.findAllStudyPrograms(PAGEABLE)).thenReturn(new PageImpl<StudyProgram>(studyPrograms));
+
 		mockMvc.perform(get("/study_programs"))
 		       .andExpect(status().isOk())
-		       .andExpect(model().attribute("page", hasProperty("content", hasSize(3))))
-                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-                       .andExpect(view().name("study_programs/page"));
+		       .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
+		       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+		       .andExpect(view().name("study_programs/page"));
 		
 		verify(studyProgramService, times(1)).findAllStudyPrograms(PAGEABLE);
 	}
@@ -91,17 +91,12 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithStudyProgramsByDepartmentIdNotLoggedIn() throws Exception {
-		when(studyProgramService.findAllStudyProgramsByDepartmentId(1L, PAGEABLE)).thenReturn(
-				new PageImpl<StudyProgram>(Arrays.asList(studyProgram1, studyProgram3)));
-	
 		mockMvc.perform(
 				get("/study_programs")
 				.param("id", "1")
 				)
-	               .andExpect(status().is3xxRedirection())
-	               .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(studyProgramService, times(0)).findAllStudyProgramsByDepartmentId(1L, PAGEABLE);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -123,17 +118,21 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithStudyProgramsByDepartmentId() throws Exception {
+		Department department = new Department(1L, "Department");
+		List<StudyProgram> studyPrograms = Arrays.asList(new StudyProgram(1L, "Study Program A", department),
+				new StudyProgram(2L, "Study Program B", department));
+
 		when(studyProgramService.findAllStudyProgramsByDepartmentId(1L, PAGEABLE))
-				.thenReturn(new PageImpl<StudyProgram>(Arrays.asList(studyProgram1, studyProgram3)));
+				.thenReturn(new PageImpl<StudyProgram>(studyPrograms));
 
 		mockMvc.perform(
 				get("/study_programs")
 				.param("id", "1")
 				)
-	               .andExpect(status().isOk())
+		       .andExpect(status().isOk())
 		       .andExpect(model().attribute("page", hasProperty("content", hasSize(2))))
-                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-                       .andExpect(view().name("study_programs/page"));;
+		       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+		       .andExpect(view().name("study_programs/page"));;
 		
 		verify(studyProgramService, times(1)).findAllStudyProgramsByDepartmentId(1L, PAGEABLE);
 	}
@@ -145,13 +144,9 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderEmptyFormNotLoggedIn() throws Exception {
-		when(departmentService.findAllDepartments(SORT)).thenReturn(Arrays.asList(department2, department1));
-	
 		mockMvc.perform(get("/study_programs/form"))
-                       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(departmentService, times(0)).findAllDepartments(SORT);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -161,12 +156,8 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderEmptyFormNotAuthorized() throws Exception {
-		when(departmentService.findAllDepartments(SORT)).thenReturn(Arrays.asList(department2, department1));
-	
 		mockMvc.perform(get("/study_programs/form"))
 		       .andExpect(status().isForbidden());
-		
-		verify(departmentService, times(0)).findAllDepartments(SORT);
 	}
 	
 	@Test
@@ -182,13 +173,16 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderEmptyForm() throws Exception {
-		when(departmentService.findAllDepartments(SORT)).thenReturn(Arrays.asList(department2, department1));
-	
+		List<Department> departments = Arrays.asList(new Department(1L, "Department A"),
+				new Department(2L, "Department B"));
+
+		when(departmentService.findAllDepartments(SORT)).thenReturn(departments);
+
 		mockMvc.perform(get("/study_programs/form"))
 		       .andExpect(status().isOk())
 		       .andExpect(model().attribute("departments", is(hasSize(2))))
 		       .andExpect(model().attribute("studyProgram", is(new StudyProgram())))
-                       .andExpect(view().name("study_programs/form"));
+		       .andExpect(view().name("study_programs/form"));
 		
 		verify(departmentService, times(1)).findAllDepartments(SORT);
 	}
@@ -198,16 +192,10 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 		saveStudyProgramNotLoggedIn();
 	}
 	
-	private void saveStudyProgramNotLoggedIn() throws Exception {
-		StudyProgram studyProgram = new StudyProgram("Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3,
-				department1);
-		
-		when(departmentService.findDepartmentById(1L)).thenReturn(department1);
-		when(studyProgramService.saveStudyProgram(studyProgram)).thenReturn(
-				new StudyProgram(1L, "Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3, department1));	
-		
+	private void saveStudyProgramNotLoggedIn() throws Exception {	
 		mockMvc.perform(
 				post("/study_programs/save")
+				.param("id", "1")
 				.param("name", "Study Program")
 				.param("createdOn", "01.01.2019")
 				.param("duration", "3")
@@ -215,10 +203,7 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(departmentService, times(0)).findDepartmentById(1L);
-		verify(studyProgramService, times(0)).saveStudyProgram(studyProgram);	
+		       .andExpect(redirectedUrlPattern("**/login"));	
 	}
 	
 	@WithMockUser(authorities = "PROFESSOR")
@@ -226,27 +211,17 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 		saveStudyProgramNotAuthorized();
 	}
 	
-	private void saveStudyProgramNotAuthorized() throws Exception {
-		StudyProgram studyProgram = new StudyProgram("Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3,
-				department1);
-		
-		when(departmentService.findDepartmentById(1L)).thenReturn(department1);
-		when(studyProgramService.saveStudyProgram(studyProgram)).thenReturn(
-				new StudyProgram(1L, "Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3, department1));	
-			
+	private void saveStudyProgramNotAuthorized() throws Exception {	
 		mockMvc.perform(
 				post("/study_programs/save")
+				.param("id", "1")
 				.param("name", "Study Program")
 				.param("createdOn", "01.01.2019")
 				.param("duration", "3")
 				.param("department", "1")
 				.with(csrf())
 				)
-		       .andExpect(status().isForbidden())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(departmentService, times(0)).findDepartmentById(1L);
-		verify(studyProgramService, times(0)).saveStudyProgram(studyProgram);	
+		       .andExpect(status().isForbidden());;	
 	}
 	
 	@WithMockUser(authorities = "USER")
@@ -260,15 +235,16 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveStudyProgram() throws Exception {
-		StudyProgram studyProgram = new StudyProgram("Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3,
-				department1);
-		
-		when(departmentService.findDepartmentById(1L)).thenReturn(department1);
-		when(studyProgramService.saveStudyProgram(studyProgram)).thenReturn(
-				new StudyProgram(1L, "Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3, department1));	
+		Department department = new Department(1L, "Department");
+		StudyProgram studyProgram = new StudyProgram(1L, "Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3,
+				department);
+	
+		when(departmentService.findDepartmentById(1L)).thenReturn(department);
+		when(studyProgramService.saveStudyProgram(studyProgram)).thenReturn(studyProgram);	
 		
 		mockMvc.perform(
 				post("/study_programs/save")
+				.param("id", "1")
 				.param("name", "Study Program")
 				.param("createdOn", "01.01.2019")
 				.param("duration", "3")
@@ -286,16 +262,17 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	@Test
 	@WithMockUser(authorities = "USER")
 	public void saveStudyProgramInvalidFormTest() throws Exception {
-		StudyProgram studyProgram = new StudyProgram("Study Program ??", LocalDate.of(2018, Month.SEPTEMBER, 1), 3,
-				department1);
+		Department department = new Department(1L, "Department");
+		StudyProgram studyProgram = new StudyProgram(1L, "Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3,
+				department);
 		
-		when(departmentService.findAllDepartments(SORT)).thenReturn(Arrays.asList(department2, department1));
-		when(studyProgramService.saveStudyProgram(studyProgram)).thenReturn(
-				new StudyProgram(1L, "Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3, department1));	
-		when(departmentService.findDepartmentById(1L)).thenReturn(department1);
+		when(departmentService.findDepartmentById(1L)).thenReturn(department);
+		when(studyProgramService.saveStudyProgram(studyProgram)).thenReturn(studyProgram);
+		when(departmentService.findAllDepartments(SORT)).thenReturn(Arrays.asList(department));
 		
 		mockMvc.perform(
 				post("/study_programs/save")
+				.param("id", "1")
 				.param("name", "Study Program ??")
 				.param("createdOn", "01.01.2019")
 				.param("duration", "3")
@@ -304,13 +281,13 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 				)
 		       .andExpect(status().isOk())
 		       .andExpect(model().attributeHasFieldErrors("studyProgram", "name"))
-		       .andExpect(model().attribute("studyProgram", hasProperty("id", is(nullValue()))))
-		       .andExpect(model().attribute("departments", hasSize(2)))
+		       .andExpect(model().attribute("studyProgram", is(studyProgram)))
+		       .andExpect(model().attribute("departments", hasSize(1)))
 		       .andExpect(view().name("study_programs/form"));
 		
-		verify(departmentService, times(1)).findAllDepartments(SORT);
-		verify(studyProgramService, times(0)).saveStudyProgram(studyProgram);
 		verify(departmentService, times(1)).findDepartmentById(1L);
+		verify(studyProgramService, never()).saveStudyProgram(studyProgram);
+		verify(departmentService, times(1)).findAllDepartments(SORT);
 	}
 	
 	@Test
@@ -320,18 +297,12 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void rederFormWithStudyProgramNotLoggedIn() throws Exception {
-		when(departmentService.findAllDepartments(SORT)).thenReturn(Arrays.asList(department2, department1));
-		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram1);
-		
 		mockMvc.perform(
 				get("/study_programs/edit")
 				.param("id", "1")
 				)
-                       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(departmentService, times(0)).findAllDepartments(SORT);
-		verify(studyProgramService, times(0)).findStudyProgramById(1L);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -340,18 +311,12 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 		rederFormWithStudyProgramNotAuthorized();
 	}
 	
-	private void rederFormWithStudyProgramNotAuthorized() throws Exception {
-		when(departmentService.findAllDepartments(SORT)).thenReturn(Arrays.asList(department2, department1));
-		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram1);
-		
+	private void rederFormWithStudyProgramNotAuthorized() throws Exception {	
 		mockMvc.perform(
 				get("/study_programs/edit")
 				.param("id", "1")
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(departmentService, times(0)).findAllDepartments(SORT);
-		verify(studyProgramService, times(0)).findStudyProgramById(1L);
 	}
 	
 	@Test
@@ -367,17 +332,21 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void rederFormWithStudyProgram() throws Exception {
-		when(departmentService.findAllDepartments(SORT)).thenReturn(Arrays.asList(department2, department1));
-		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram1);
-		
+		Department department = new Department(1L, "Department");
+		StudyProgram studyProgram = new StudyProgram(1L, "Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3,
+				department);
+
+		when(departmentService.findAllDepartments(SORT)).thenReturn(Arrays.asList(department));
+		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram);
+	
 		mockMvc.perform(
 				get("/study_programs/edit")
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("studyProgram", hasProperty("name", is("Study Program B"))))
-                       .andExpect(model().attribute("departments", hasSize(2)))
-                       .andExpect(view().name("study_programs/form"));
+		       .andExpect(model().attribute("studyProgram", hasProperty("name", is("Study Program"))))
+		       .andExpect(model().attribute("departments", hasSize(1)))
+		       .andExpect(view().name("study_programs/form"));
 		
 		verify(departmentService, times(1)).findAllDepartments(SORT);
 		verify(studyProgramService, times(1)).findStudyProgramById(1L);
@@ -408,15 +377,17 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void rederStudyProgramDetails() throws Exception {
-		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram1);
+		StudyProgram studyProgram = new StudyProgram(1L, "Study Program");
+		
+		when(studyProgramService.findStudyProgramById(1L)).thenReturn(studyProgram);
 		
 		mockMvc.perform(
 				get("/study_programs/details")
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("studyProgram", hasProperty("name", is("Study Program B"))))
-                       .andExpect(view().name("study_programs/details"));;
+		       .andExpect(model().attribute("studyProgram", hasProperty("name", is("Study Program"))))
+		       .andExpect(view().name("study_programs/details"));;
 		
 		verify(studyProgramService, times(1)).findStudyProgramById(1L);
 	}
@@ -428,16 +399,12 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 	}
 	
 	private void  deleteStudyProgramByIdNotLoggedIn() throws Exception {
-		doNothing().when(studyProgramService). deleteStudyProgramById(1L);
-		
 		mockMvc.perform(
 				get("/study_programs/delete")
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-	
-		verify(studyProgramService, times(0)). deleteStudyProgramById(1L);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -446,16 +413,12 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 		deleteStudyProgramByIdNotAuthorized();
 	}
 	
-	private void deleteStudyProgramByIdNotAuthorized() throws Exception {
-		doNothing().when(studyProgramService).deleteStudyProgramById(1L);
-		
+	private void deleteStudyProgramByIdNotAuthorized() throws Exception {	
 		mockMvc.perform(
 				get("/study_programs/delete")
 				.param("id", "1")
 				)
 		       .andExpect(status().isForbidden());
-	
-		verify(studyProgramService, times(0)).deleteStudyProgramById(1L);
 	}
 	
 	@Test
@@ -478,7 +441,7 @@ public class StudyProgramsControllerTest extends BaseControllerTest {
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrl("/study_programs"));
+		       .andExpect(redirectedUrl("/study_programs"));
 	
 		verify(studyProgramService, times(1)).deleteStudyProgramById(1L);
 	}
