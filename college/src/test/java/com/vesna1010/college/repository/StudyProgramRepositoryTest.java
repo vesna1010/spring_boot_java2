@@ -6,12 +6,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import com.vesna1010.college.models.Department;
 import com.vesna1010.college.models.StudyProgram;
 import com.vesna1010.college.repositories.StudyProgramRepository;
 
@@ -72,8 +72,8 @@ public class StudyProgramRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void saveStudyProgramTest() {
-		StudyProgram studyProgram = new StudyProgram("Study Program", LocalDate.of(2018, Month.SEPTEMBER, 1), 3,
-				department1);
+		StudyProgram studyProgram = new StudyProgram("Study Program", LocalDate.now(), 3,
+				new Department(1L, "Department B"));
 
 		studyProgram = repository.save(studyProgram);
 
@@ -85,11 +85,12 @@ public class StudyProgramRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void updateStudyProgramTest() {
-		studyProgram1.setName("Study Program");
-		studyProgram1 = repository.save(studyProgram1);
-
 		Optional<StudyProgram> optional = repository.findById(1L);
 		StudyProgram studyProgram = optional.get();
+
+		studyProgram.setName("Study Program");
+		
+		studyProgram = repository.save(studyProgram);
 
 		assertThat(studyProgram.getName(), is("Study Program"));
 		assertThat(studyProgram.getStudents(), hasSize(2));
