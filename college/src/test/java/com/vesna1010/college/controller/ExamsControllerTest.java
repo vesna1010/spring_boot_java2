@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
@@ -28,7 +29,10 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import com.vesna1010.college.models.Exam;
+import com.vesna1010.college.models.Professor;
+import com.vesna1010.college.models.Student;
 import com.vesna1010.college.models.StudentSubjectId;
+import com.vesna1010.college.models.Subject;
 import com.vesna1010.college.services.ExamService;
 import com.vesna1010.college.services.ProfessorService;
 import com.vesna1010.college.services.StudentService;
@@ -52,20 +56,12 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderPageWithExamsByStudyProgramIdNotLoggedIn() throws Exception {
-		Sort sort = Sort.by(Order.asc("subject.id"), Order.asc("student.id"));
-		Pageable pageable = PageRequest.of(0, 10, sort);
-
-		when(examService.findAllExamsByStudyProgramId(1L, pageable))
-				.thenReturn(new PageImpl<Exam>(Arrays.asList(exam1, exam3, exam2)));	
-		
 		mockMvc.perform(
 				get("/exams")
 				.param("id", "1")
 				)
-		      .andExpect(status().is3xxRedirection())
-                      .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(examService, times(0)).findAllExamsByStudyProgramId(1L, pageable);
+		       .andExpect(status().is3xxRedirection())
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -89,18 +85,19 @@ public class ExamsControllerTest extends BaseControllerTest {
 	private void renderPageWithExamsByStudyProgramId() throws Exception {
 		Sort sort = Sort.by(Order.asc("subject.id"), Order.asc("student.id"));
 		Pageable pageable = PageRequest.of(0, 10, sort);
+		List<Exam> exams = Arrays.asList(new Exam(LocalDate.now(), new Student(1L, "Student"),
+				new Subject(1L, "Subject"), new Professor(1L, "Professor"), 10));
 
-		when(examService.findAllExamsByStudyProgramId(1L, pageable))
-				.thenReturn(new PageImpl<Exam>(Arrays.asList(exam1, exam3, exam2)));	
-		
+		when(examService.findAllExamsByStudyProgramId(1L, pageable)).thenReturn(new PageImpl<Exam>(exams));
+
 		mockMvc.perform(
 				get("/exams")
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("page", hasProperty("content", hasSize(3))))
-                       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
-                       .andExpect(view().name("exams/page"));
+		       .andExpect(model().attribute("page", hasProperty("content", hasSize(1))))
+		       .andExpect(model().attribute("page", hasProperty("totalPages", is(1))))
+		       .andExpect(view().name("exams/page"));
 		
 		verify(examService, times(1)).findAllExamsByStudyProgramId(1L, pageable);
 	}
@@ -112,10 +109,6 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void deleteExamByIdNotLoggedIn() throws Exception {
-		StudentSubjectId id = new StudentSubjectId(1L, 1L);
-		
-		doNothing().when(examService).deleteExamById(id);
-		
 		mockMvc.perform(
 				get("/exams/delete")
 				.param("id", "1")
@@ -123,9 +116,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("studentId", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-	
-		verify(examService, times(0)).deleteExamById(id);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -135,10 +126,6 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void deleteExamByIdNotAuthorized() throws Exception {
-		StudentSubjectId id = new StudentSubjectId(1L, 1L);
-		
-		doNothing().when(examService).deleteExamById(id);
-		
 		mockMvc.perform(
 				get("/exams/delete")
 				.param("id", "1")
@@ -146,8 +133,6 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("studentId", "1")
 				)
 		       .andExpect(status().isForbidden());
-	
-		verify(examService, times(0)).deleteExamById(id);
 	}
 
 	@Test
@@ -174,7 +159,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("studentId", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrl("/exams?id=1"));
+		       .andExpect(redirectedUrl("/exams?id=1"));
 	
 		verify(examService, times(1)).deleteExamById(id);
 	}
@@ -186,21 +171,12 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 
 	private void renderEmptyFormNotLoggedIn() throws Exception {
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(student2, student1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
-		
 		mockMvc.perform(
 				get("/exams/form")
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, SORT);
-		verify(studentService, times(0)).findAllStudentsByStudyProgramId(1L, SORT);
-		verify(professorService, times(0)).findAllProfessorsByStudyProgramId(1L, SORT);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -210,20 +186,11 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderEmptyFormNotAuthorized() throws Exception {
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(student2, student1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
-		
 		mockMvc.perform(
 				get("/exams/form")
 				.param("id", "1")
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, SORT);
-		verify(studentService, times(0)).findAllStudentsByStudyProgramId(1L, SORT);
-		verify(professorService, times(0)).findAllProfessorsByStudyProgramId(1L, SORT);
 	}
 
 	@Test
@@ -239,21 +206,24 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderEmptyForm() throws Exception {
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(student2, student1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
-		
+		List<Subject> subjects = Arrays.asList(new Subject(1L, "Subject A"), new Subject(2L, "Subject B"));
+		List<Professor> professors = Arrays.asList(new Professor(1L, "Professor A"), new Professor(2L, "Professor B"));
+		List<Student> students = Arrays.asList(new Student(1L, "Student A"), new Student(2L, "Student B"));
+
+		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(subjects);
+		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(students);
+		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT)).thenReturn(professors);
+
 		mockMvc.perform(
 				get("/exams/form")
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("exam", is(new Exam())))
-                       .andExpect(model().attribute("professors", hasSize(2)))
-                       .andExpect(model().attribute("subjects", hasSize(2)))
-                       .andExpect(model().attribute("students", hasSize(2)))
-                       .andExpect(view().name("exams/form"));
+		       .andExpect(model().attribute("exam", is(new Exam())))
+		       .andExpect(model().attribute("professors", hasSize(2)))
+		       .andExpect(model().attribute("subjects", hasSize(2)))
+		       .andExpect(model().attribute("students", hasSize(2)))
+		       .andExpect(view().name("exams/form"));
 		
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(studentService, times(1)).findAllStudentsByStudyProgramId(1L, SORT);
@@ -267,31 +237,18 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveExamNotLoggedIn() throws Exception {
-		Exam exam = new Exam(LocalDate.of(2019, 05, 10), student2, subject3, professor1, 10);
-		
-		when(studentService.findStudentById(2L)).thenReturn(student2);
-		when(subjectService.findSubjectById(3L)).thenReturn(subject3);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(examService.saveExam(exam))
-				.thenReturn(new Exam(LocalDate.of(2019, 05, 10), student2, subject3, professor1, 10));
-	
 		mockMvc.perform(
 				post("/exams/save")
 				.param("date", "10.05.2019")
-				.param("student", "2")
-				.param("subject", "3")
+				.param("student", "1")
+				.param("subject", "1")
 				.param("professor", "1")
 				.param("score", "10")
 				.param("id", "1")
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(studentService, times(0)).findStudentById(2L);
-		verify(subjectService, times(0)).findSubjectById(3L);
-		verify(professorService, times(0)).findProfessorById(1L);
-		verify(examService, times(0)).saveExam(exam);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 	
 	@Test
@@ -301,30 +258,17 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveExamNotAuthorized() throws Exception {
-		Exam exam = new Exam(LocalDate.of(2019, 05, 10), student2, subject3, professor1, 10);
-		
-		when(studentService.findStudentById(2L)).thenReturn(student2);
-		when(subjectService.findSubjectById(3L)).thenReturn(subject3);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(examService.saveExam(exam))
-				.thenReturn(new Exam(LocalDate.of(2019, 05, 10), student2, subject3, professor1, 10));
-	
 		mockMvc.perform(
 				post("/exams/save")
 				.param("date", "10.05.2019")
-				.param("student", "2")
-				.param("subject", "3")
+				.param("student", "1")
+				.param("subject", "1")
 				.param("professor", "1")
 				.param("score", "10")
 				.param("id", "1")
 				.with(csrf())
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(studentService, times(0)).findStudentById(2L);
-		verify(subjectService, times(0)).findSubjectById(3L);
-		verify(professorService, times(0)).findProfessorById(1L);
-		verify(examService, times(0)).saveExam(exam);
 	}
 	
 	@Test
@@ -340,19 +284,21 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void saveExam() throws Exception {
-		Exam exam = new Exam(LocalDate.of(2019, 05, 10), student2, subject3, professor1, 10);
+		Student student = new Student(1L, "Student");
+		Subject subject = new Subject(1L, "Subject");
+		Professor professor = new Professor(1L, "Professor");
+		Exam exam = new Exam(LocalDate.of(2019, 05, 10), student, subject, professor, 10);
 		
-		when(studentService.findStudentById(2L)).thenReturn(student2);
-		when(subjectService.findSubjectById(3L)).thenReturn(subject3);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(examService.saveExam(exam))
-				.thenReturn(new Exam(LocalDate.of(2019, 05, 10), student2, subject3, professor1, 10));
-		
+		when(studentService.findStudentById(1L)).thenReturn(student);
+		when(subjectService.findSubjectById(1L)).thenReturn(subject);
+		when(professorService.findProfessorById(1L)).thenReturn(professor);
+		when(examService.saveExam(exam)).thenReturn(exam);
+
 		mockMvc.perform(
 				post("/exams/save")
 				.param("date", "10.05.2019")
-				.param("student", "2")
-				.param("subject", "3")
+				.param("student", "1")
+				.param("subject", "1")
 				.param("professor", "1")
 				.param("score", "10")
 				.param("id", "1")
@@ -362,8 +308,8 @@ public class ExamsControllerTest extends BaseControllerTest {
 		       .andExpect(status().is3xxRedirection())
 		       .andExpect(redirectedUrl("/exams/form?id=1"));
 		
-		verify(studentService, times(1)).findStudentById(2L);
-		verify(subjectService, times(1)).findSubjectById(3L);
+		verify(studentService, times(1)).findStudentById(1L);
+		verify(subjectService, times(1)).findSubjectById(1L);
 		verify(professorService, times(1)).findProfessorById(1L);
 		verify(examService, times(1)).saveExam(exam);
 	}
@@ -371,23 +317,24 @@ public class ExamsControllerTest extends BaseControllerTest {
 	@Test
 	@WithMockUser(authorities = "USER")
 	public void saveExamInvalidFormTest() throws Exception {
-		Exam exam = new Exam(LocalDate.of(2019, 05, 10), student2, subject3, professor1, 5);
+		Student student = new Student(1L, "Student");
+		Subject subject = new Subject(1L, "Subject");
+		Professor professor = new Professor(1L, "Professor");
+		Exam exam = new Exam(LocalDate.of(2019, 05, 10), student, subject, professor, 5);
 		
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(student2, student1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
-		when(studentService.findStudentById(2L)).thenReturn(student2);
-		when(subjectService.findSubjectById(3L)).thenReturn(subject3);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(examService.saveExam(exam))
-				.thenReturn(new Exam(LocalDate.of(2019, 05, 10), student2, subject3, professor1, 10));
+		when(studentService.findStudentById(1L)).thenReturn(student);
+		when(subjectService.findSubjectById(1L)).thenReturn(subject);
+		when(professorService.findProfessorById(1L)).thenReturn(professor);
+		when(examService.saveExam(exam)).thenReturn(exam);
+		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject));
+		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(student));
+		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(professor));
 		
 		mockMvc.perform(
 				post("/exams/save")
 				.param("date", "10.05.2019")
-				.param("student", "2")
-				.param("subject", "3")
+				.param("student", "1")
+				.param("subject", "1")
 				.param("professor", "1")
 				.param("score", "5")
 				.param("id", "1")
@@ -395,20 +342,20 @@ public class ExamsControllerTest extends BaseControllerTest {
 				)
 		       .andExpect(status().isOk())
 		       .andExpect(model().attributeHasFieldErrors("exam", "score"))
-		       .andExpect(model().attribute("exam", hasProperty("student", is(student2))))
-		       .andExpect(model().attribute("exam", hasProperty("subject", is(subject3))))
-		       .andExpect(model().attribute("professors", hasSize(2)))
-                       .andExpect(model().attribute("subjects", hasSize(2)))
-                       .andExpect(model().attribute("students", hasSize(2)))
+		       .andExpect(model().attribute("exam", hasProperty("student", is(student))))
+		       .andExpect(model().attribute("exam", hasProperty("subject", is(subject))))
+		       .andExpect(model().attribute("professors", hasSize(1)))
+		       .andExpect(model().attribute("subjects", hasSize(1)))
+		       .andExpect(model().attribute("students", hasSize(1)))
 		       .andExpect(view().name("exams/form"));
-		       
+		
+		verify(studentService, times(2)).findStudentById(1L);
+		verify(subjectService, times(1)).findSubjectById(1L);
+		verify(professorService, times(2)).findProfessorById(1L);
+		verify(examService, times(0)).saveExam(exam);
 		verify(studentService, times(1)).findAllStudentsByStudyProgramId(1L, SORT);
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(professorService, times(1)).findAllProfessorsByStudyProgramId(1L, SORT);
-		verify(studentService, times(1)).findStudentById(2L);
-		verify(subjectService, times(1)).findSubjectById(3L);
-		verify(professorService, times(1)).findProfessorById(1L);
-		verify(examService, times(0)).saveExam(exam);
 	}
 
 	@Test
@@ -418,14 +365,6 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderFormWithExamNotLoggedIn() throws Exception {
-		StudentSubjectId id = new StudentSubjectId(1L, 1L);
-		
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(student2, student1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
-		when(examService.findExamById(id)).thenReturn(exam1);
-		
 		mockMvc.perform(
 				get("/exams/edit")
 				.param("id", "1")
@@ -433,12 +372,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("subjectId", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, SORT);
-		verify(studentService, times(0)).findAllStudentsByStudyProgramId(1L, SORT);
-		verify(professorService, times(0)).findAllProfessorsByStudyProgramId(1L, SORT);
-		verify(examService, times(0)).findExamById(id);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -448,14 +382,6 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderFormWithExamNotAuthorized() throws Exception {
-		StudentSubjectId id = new StudentSubjectId(1L, 1L);
-		
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(student2, student1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
-		when(examService.findExamById(id)).thenReturn(exam1);
-		
 		mockMvc.perform(
 				get("/exams/edit")
 				.param("id", "1")
@@ -463,11 +389,6 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("subjectId", "1")
 				)
 		       .andExpect(status().isForbidden());
-		
-		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, SORT);
-		verify(studentService, times(0)).findAllStudentsByStudyProgramId(1L, SORT);
-		verify(professorService, times(0)).findAllProfessorsByStudyProgramId(1L, SORT);
-		verify(examService, times(0)).findExamById(id);
 	}
 
 	@Test
@@ -484,12 +405,15 @@ public class ExamsControllerTest extends BaseControllerTest {
 	
 	private void renderFormWithExam() throws Exception {
 		StudentSubjectId id = new StudentSubjectId(1L, 1L);
+		Student student = new Student(1L, "Student");
+		Subject subject = new Subject(1L, "Subject");
+		Professor professor = new Professor(1L, "Professor");
+		Exam exam = new Exam(LocalDate.of(2019, 05, 10), student, subject, professor, 10);
 		
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(student2, student1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
-		when(examService.findExamById(id)).thenReturn(exam1);
+		when(examService.findExamById(id)).thenReturn(exam);
+		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject));
+		when(studentService.findAllStudentsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(student));
+		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(professor));
 		
 		mockMvc.perform(
 				get("/exams/edit")
@@ -498,16 +422,16 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.param("subjectId", "1")
 				)
 		       .andExpect(status().isOk())
-                       .andExpect(model().attribute("exam", hasProperty("score", is(8))))
-                       .andExpect(model().attribute("professors", hasSize(2)))
-                       .andExpect(model().attribute("subjects", hasSize(2)))
-                       .andExpect(model().attribute("students", hasSize(2)))
-                       .andExpect(view().name("exams/form"));
+		       .andExpect(model().attribute("exam", hasProperty("score", is(10))))
+		       .andExpect(model().attribute("professors", hasSize(1)))
+		       .andExpect(model().attribute("subjects", hasSize(1)))
+		       .andExpect(model().attribute("students", hasSize(1)))
+		       .andExpect(view().name("exams/form"));
 		
+		verify(examService, times(1)).findExamById(id);
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(studentService, times(1)).findAllStudentsByStudyProgramId(1L, SORT);
 		verify(professorService, times(1)).findAllProfessorsByStudyProgramId(1L, SORT);
-		verify(examService, times(1)).findExamById(id);
 	}
 
 	@Test
@@ -517,19 +441,12 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderSearchExamFormNotLoggedIn() throws Exception {
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
-		
 		mockMvc.perform(
 				get("/exams/search")
 				.param("id", "1")
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(subjectService, times(0)).findAllSubjectsByStudyProgramId(1L, SORT);
-		verify(professorService, times(0)).findAllProfessorsByStudyProgramId(1L, SORT);
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@Test
@@ -551,19 +468,21 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderSearchExamForm() throws Exception {
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
-		
+		List<Subject> subjects = Arrays.asList(new Subject(1L, "Subject A"), new Subject(2L, "Subject B"));
+		List<Professor> professors = Arrays.asList(new Professor(1L, "Professor A"), new Professor(2L, "Professor B"));
+
+		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(subjects);
+		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT)).thenReturn(professors);
+
 		mockMvc.perform(
 				get("/exams/search")
 				.param("id", "1")
 				)
 		       .andExpect(status().isOk())
 		       .andExpect(model().attribute("exam", is(new Exam())))
-                       .andExpect(model().attribute("professors", hasSize(2)))
-                       .andExpect(model().attribute("subjects", hasSize(2)))
-                       .andExpect(view().name("exams/search"));
+		       .andExpect(model().attribute("professors", hasSize(2)))
+		       .andExpect(model().attribute("subjects", hasSize(2)))
+		       .andExpect(view().name("exams/search"));
 		
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(professorService, times(1)).findAllProfessorsByStudyProgramId(1L, SORT);
@@ -575,11 +494,6 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderSearchedExamsNotLoggedIn() throws Exception {
-		when(subjectService.findSubjectById(1L)).thenReturn(subject1);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(examService.findAllExamsByProfessorAndSubjectAndDate(professor1, subject1,
-				LocalDate.of(2019, Month.FEBRUARY, 10))).thenReturn(Arrays.asList(exam1));
-	
 		mockMvc.perform(
 				post("/exams/search")
 				.param("date", "10.02.2019")
@@ -589,12 +503,7 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().is3xxRedirection())
-                       .andExpect(redirectedUrlPattern("**/login"));
-		
-		verify(subjectService, times(0)).findSubjectById(1L);
-		verify(professorService, times(0)).findProfessorById(1L);
-		verify(examService, times(0)).findAllExamsByProfessorAndSubjectAndDate(professor1, subject1,
-				LocalDate.of(2019, Month.FEBRUARY, 10));
+		       .andExpect(redirectedUrlPattern("**/login"));
 	}
 
 	@WithMockUser(authorities = "PROFESSOR")
@@ -613,10 +522,15 @@ public class ExamsControllerTest extends BaseControllerTest {
 	}
 	
 	private void renderSearchedExams() throws Exception {
-		when(subjectService.findSubjectById(1L)).thenReturn(subject1);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(examService.findAllExamsByProfessorAndSubjectAndDate(professor1, subject1,
-				LocalDate.of(2019, Month.FEBRUARY, 10))).thenReturn(Arrays.asList(exam1));
+		Subject subject = new Subject(1L, "Subject");
+		Professor professor = new Professor(1L, "Professor");
+		Student student = new Student(1L, "Student");
+		Exam exam = new Exam(LocalDate.of(2019, Month.FEBRUARY, 10), student, subject, professor, 10);
+	
+		when(subjectService.findSubjectById(1L)).thenReturn(subject);
+		when(professorService.findProfessorById(1L)).thenReturn(professor);
+		when(examService.findAllExamsByProfessorAndSubjectAndDate(professor, subject,
+				LocalDate.of(2019, Month.FEBRUARY, 10))).thenReturn(Arrays.asList(exam));
 	
 		mockMvc.perform(
 				post("/exams/search")
@@ -627,27 +541,29 @@ public class ExamsControllerTest extends BaseControllerTest {
 				.with(csrf())
 				)
 		       .andExpect(status().isOk())
-		       .andExpect(model().attribute("subject", is(subject1)))
-		       .andExpect(model().attribute("professor", is(professor1)))
+		       .andExpect(model().attribute("subject", is(subject)))
+		       .andExpect(model().attribute("professor", is(professor)))
 		       .andExpect(model().attribute("date", is(LocalDate.of(2019, Month.FEBRUARY, 10))))
 		       .andExpect(model().attribute("exams", hasSize(1)))
 		       .andExpect(view().name("exams/searched"));
 		
 		verify(subjectService, times(1)).findSubjectById(1L);
 		verify(professorService, times(1)).findProfessorById(1L);
-		verify(examService, times(1)).findAllExamsByProfessorAndSubjectAndDate(professor1, subject1,
+		verify(examService, times(1)).findAllExamsByProfessorAndSubjectAndDate(professor, subject,
 				LocalDate.of(2019, Month.FEBRUARY, 10));
 	}
 
 	@Test
 	@WithMockUser(authorities = "PROFESSOR")
 	public void renderSearchedExamsInvalidFormTest() throws Exception {
-		when(subjectService.findSubjectById(1L)).thenReturn(subject1);
-		when(professorService.findProfessorById(1L)).thenReturn(professor1);
-		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject3, subject1));
-		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT))
-				.thenReturn(Arrays.asList(professor1, professor2));
+		Subject subject = new Subject(1L, "Subject");
+		Professor professor = new Professor(1L, "Professor");
 	
+		when(subjectService.findSubjectById(1L)).thenReturn(subject);
+		when(professorService.findProfessorById(1L)).thenReturn(professor);
+		when(subjectService.findAllSubjectsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(subject));
+		when(professorService.findAllProfessorsByStudyProgramId(1L, SORT)).thenReturn(Arrays.asList(professor));
+
 		mockMvc.perform(
 				post("/exams/search")
 				.param("date", "")
@@ -658,14 +574,14 @@ public class ExamsControllerTest extends BaseControllerTest {
 				)
 		       .andExpect(status().isOk())
 		       .andExpect(model().attributeHasFieldErrors("exam", "date"))
-		       .andExpect(model().attribute("professors", hasSize(2)))
-                       .andExpect(model().attribute("subjects", hasSize(2)))
-                       .andExpect(model().attribute("exam", hasProperty("subject", is(subject1))))
-                       .andExpect(model().attribute("exam", hasProperty("professor", is(professor1))))
+		       .andExpect(model().attribute("professors", hasSize(1)))
+		       .andExpect(model().attribute("subjects", hasSize(1)))
+		       .andExpect(model().attribute("exam", hasProperty("subject", is(subject))))
+		       .andExpect(model().attribute("exam", hasProperty("professor", is(professor))))
 		       .andExpect(view().name("exams/search"));
 		
 		verify(subjectService, times(1)).findSubjectById(1L);
-		verify(professorService, times(1)).findProfessorById(1L);
+		verify(professorService, times(2)).findProfessorById(1L);
 		verify(subjectService, times(1)).findAllSubjectsByStudyProgramId(1L, SORT);
 		verify(professorService, times(1)).findAllProfessorsByStudyProgramId(1L, SORT);
 	}
