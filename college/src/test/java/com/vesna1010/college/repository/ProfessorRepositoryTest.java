@@ -95,11 +95,12 @@ public class ProfessorRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void updateProfessorTest() {
-		professor1.setName("Professor");
-		professor1 = repository.save(professor1);
-
 		Optional<Professor> optional = repository.findById(1L);
 		Professor professor = optional.get();
+
+		professor.setName("Professor");
+		
+		professor = repository.save(professor);
 
 		assertThat(professor.getName(), is("Professor"));
 		assertThat(professor.getSubjects(), hasSize(2));
