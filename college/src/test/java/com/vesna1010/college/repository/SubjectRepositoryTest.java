@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import com.vesna1010.college.models.Professor;
+import com.vesna1010.college.models.StudyProgram;
 import com.vesna1010.college.models.Subject;
 import com.vesna1010.college.repositories.SubjectRepository;
 
@@ -73,7 +74,8 @@ public class SubjectRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void saveSubjectTest() {
-		Subject subject = new Subject("Subject", studyProgram1, new HashSet<Professor>(Arrays.asList(professor1)));
+		Subject subject = new Subject("Subject", new StudyProgram(1L, "Study Program B"),
+				new HashSet<Professor>(Arrays.asList(new Professor(1L, "Professor B"))));
 
 		subject = repository.save(subject);
 
@@ -85,14 +87,16 @@ public class SubjectRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void updateSubjectTest() {
-		subject1.setProfessors(new HashSet<Professor>(Arrays.asList(professor3)));
-		subject1 = repository.save(subject1);
-
 		Optional<Subject> optional = repository.findById(1L);
 		Subject subject = optional.get();
+		Professor professor = new Professor(3L, "Professor A");
+
+		subject.setProfessors(new HashSet<Professor>(Arrays.asList(professor)));
+		
+		subject = repository.save(subject);
 
 		assertThat(subject.getProfessors(), hasSize(1));
-		assertTrue(subject.getProfessors().contains(professor3));
+		assertTrue(subject.getProfessors().contains(professor));
 		assertThat(subject.getExams(), hasSize(2));
 		assertThat(repository.count(), is(4L));
 	}
