@@ -15,9 +15,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
-
 import com.vesna1010.college.models.Exam;
+import com.vesna1010.college.models.Professor;
+import com.vesna1010.college.models.Student;
 import com.vesna1010.college.models.StudentSubjectId;
+import com.vesna1010.college.models.Subject;
 import com.vesna1010.college.repositories.ExamRepository;
 
 public class ExamRepositoryTest extends BaseRepositoryTest {
@@ -40,11 +42,10 @@ public class ExamRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void findAllByProfessorAndSubjectAndDateTest() {
-		List<Exam> exams = repository.findAllByProfessorAndSubjectAndDate(professor1, subject1,
-				LocalDate.of(2019, Month.FEBRUARY, 10));
+		List<Exam> exams = repository.findAllByProfessorAndSubjectAndDate(new Professor(1L, "Professor B"),
+				new Subject(1L, "Subject B"), LocalDate.of(2019, Month.FEBRUARY, 10));
 
 		assertThat(exams, hasSize(1));
-		assertTrue(exams.contains(exam1));
 	}
 
 	@Test
@@ -53,7 +54,7 @@ public class ExamRepositoryTest extends BaseRepositoryTest {
 		Optional<Exam> optional = repository.findById(id);
 		Exam exam = optional.get();
 
-		assertThat(exam.getProfessor(), is(professor1));
+		assertThat(exam.getProfessor().getId(), is(1L));
 		assertThat(exam.getScore(), is(8));
 	}
 
@@ -67,7 +68,8 @@ public class ExamRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void saveExamTest() {
-		Exam exam = new Exam(LocalDate.of(2019, 05, 10), student2, subject3, professor1, 10);
+		Exam exam = new Exam(LocalDate.of(2019, 05, 10), new Student(2L, "Student B"), new Subject(3L, "Subject A"),
+				new Professor(1L, "Professor B"), 10);
 
 		exam = repository.save(exam);
 
@@ -79,12 +81,12 @@ public class ExamRepositoryTest extends BaseRepositoryTest {
 
 	@Test
 	public void updateExamTest() {
-		exam1.setScore(10);
-		exam1 = repository.save(exam1);
-
 		StudentSubjectId id = new StudentSubjectId(1L, 1L);
 		Optional<Exam> optional = repository.findById(id);
 		Exam exam = optional.get();
+		
+		exam.setScore(10);
+		exam = repository.save(exam);
 
 		assertThat(exam.getScore(), is(10));
 		assertThat(repository.count(), is(4L));
