@@ -24,7 +24,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
 import com.vesna1010.college.models.Exam;
+import com.vesna1010.college.models.Professor;
+import com.vesna1010.college.models.Student;
 import com.vesna1010.college.models.StudentSubjectId;
+import com.vesna1010.college.models.Subject;
 import com.vesna1010.college.repositories.ExamRepository;
 import com.vesna1010.college.services.ExamService;
 
@@ -37,15 +40,20 @@ public class ExamServiceTest extends BaseServiceTest {
 
 	@Test
 	public void findAllExamsByProfessorAndSubjectAndDateTest() {
-		when(repository.findAllByProfessorAndSubjectAndDate(professor1, subject1,
-				LocalDate.of(2019, Month.FEBRUARY, 10))).thenReturn(Arrays.asList(exam1));
+		Professor professor = new Professor(1L, "Professor");
+		Subject subject = new Subject(1L, "Subject");
+		Student student = new Student(1L, "Student");
+		Exam exam = new Exam(LocalDate.of(2019, Month.FEBRUARY, 10), student, subject, professor, 10);
 
-		List<Exam> exams = service.findAllExamsByProfessorAndSubjectAndDate(professor1, subject1,
+		when(repository.findAllByProfessorAndSubjectAndDate(professor, subject, LocalDate.of(2019, Month.FEBRUARY, 10)))
+				.thenReturn(Arrays.asList(exam));
+
+		List<Exam> exams = service.findAllExamsByProfessorAndSubjectAndDate(professor, subject,
 				LocalDate.of(2019, Month.FEBRUARY, 10));
 
 		assertThat(exams, hasSize(1));
-		assertTrue(exams.contains(exam1));
-		verify(repository, times(1)).findAllByProfessorAndSubjectAndDate(professor1, subject1,
+		assertTrue(exams.contains(exam));
+		verify(repository, times(1)).findAllByProfessorAndSubjectAndDate(professor, subject,
 				LocalDate.of(2019, Month.FEBRUARY, 10));
 	}
 
@@ -53,38 +61,38 @@ public class ExamServiceTest extends BaseServiceTest {
 	public void findAllExamsByStudyProgramIdTest() {
 		Sort sort = Sort.by(Order.asc("subject.id"), Order.asc("student.id"));
 		Pageable pageable = PageRequest.of(0, 10, sort);
-		
+		Exam exam = new Exam(LocalDate.of(2019, Month.FEBRUARY, 10), new Student(1L, "Student"),
+				new Subject(1L, "Subject"), new Professor(1L, "Professor"), 10);
+
 		when(repository.findAllBySubjectStudyProgramId(1L, pageable))
-				.thenReturn(new PageImpl<Exam>(Arrays.asList(exam1, exam3, exam2)));
+				.thenReturn(new PageImpl<Exam>(Arrays.asList(exam)));
 
 		Page<Exam> page = service.findAllExamsByStudyProgramId(1L, pageable);
 		List<Exam> exams = page.getContent();
 
 		assertThat(page.getTotalPages(), is(1));
-		assertThat(exams, hasSize(3));
-		assertThat(exams.get(0).getScore(), is(8));
-		assertThat(exams.get(1).getScore(), is(7));
-		assertThat(exams.get(2).getScore(), is(9));
+		assertThat(exams, hasSize(1));
+		assertThat(exams.get(0).getScore(), is(10));
 		verify(repository, times(1)).findAllBySubjectStudyProgramId(1L, pageable);
 	}
 
 	@Test
 	public void findExamByIdTest() {
 		StudentSubjectId id = new StudentSubjectId(1L, 1L);
-		
-		when(repository.findById(id)).thenReturn(Optional.of(exam1));
+
+		when(repository.findById(id)).thenReturn(Optional.of(new Exam(LocalDate.of(2019, Month.FEBRUARY, 10),
+				new Student(1L, "Student"), new Subject(1L, "Subject"), new Professor(1L, "Professor"), 10)));
 
 		Exam exam = service.findExamById(id);
 
-		assertThat(exam.getProfessor(), is(professor1));
-		assertThat(exam.getScore(), is(8));
+		assertThat(exam.getScore(), is(10));
 		verify(repository, times(1)).findById(id);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void findExamByIdNotFoundTest() {
-		StudentSubjectId id = new StudentSubjectId(1L, 2L);
-		
+		StudentSubjectId id = new StudentSubjectId(1L, 1L);
+
 		when(repository.findById(id)).thenReturn(Optional.empty());
 
 		service.findExamById(id);
@@ -92,9 +100,10 @@ public class ExamServiceTest extends BaseServiceTest {
 
 	@Test
 	public void saveExamTest() {
-		Exam exam = new Exam(LocalDate.now(), student2, subject3, professor1, 10);
+		Exam exam = new Exam(LocalDate.of(2019, Month.FEBRUARY, 10), new Student(1L, "Student"),
+				new Subject(1L, "Subject"), new Professor(1L, "Professor"), 10);
 
-		when(repository.save(exam)).thenReturn(new Exam(LocalDate.now(), student2, subject3, professor1, 10));
+		when(repository.save(exam)).thenReturn(exam);
 
 		Exam examSaved = service.saveExam(exam);
 
@@ -105,7 +114,7 @@ public class ExamServiceTest extends BaseServiceTest {
 	@Test
 	public void deleteExamById() {
 		StudentSubjectId id = new StudentSubjectId(1L, 1L);
-		
+
 		doNothing().when(repository).deleteById(id);
 
 		service.deleteExamById(id);
