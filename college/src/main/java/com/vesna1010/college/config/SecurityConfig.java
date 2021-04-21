@@ -29,12 +29,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+		auth.userDetailsService(userDetailsService)
+		    .passwordEncoder(passwordEncoder);
 	}
 
 	@Override
 	public void configure(WebSecurity http) throws Exception {
-		http.ignoring().antMatchers("/static/**");
+		http.ignoring()
+		    .antMatchers("/static/**");
 	}
 
 	@Override
