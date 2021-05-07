@@ -34,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Override
-	public void configure(WebSecurity http) throws Exception {
+	public void configure(WebSecurity http) {
 		http.ignoring()
 		    .antMatchers("/static/**");
 	}
@@ -42,23 +42,43 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
-		        .antMatchers("/study_programs/details").permitAll()
-		        .regexMatchers("\\/departments\\/?").authenticated()
-		        .regexMatchers("\\/study_programs\\/?(\\?id=\\d+)?").authenticated()
-		        .regexMatchers("\\/subjects\\/?(\\?id=\\d+)?").authenticated()
-		        .regexMatchers("\\/students\\/?(\\?id=\\d+)?").authenticated()
-		        .regexMatchers("\\/exams\\/?(\\?id=\\d+)?").authenticated()
-		        .regexMatchers("\\/exams/search\\/?(\\?id=\\d+)?").authenticated()
-		        .regexMatchers("\\/students/exams\\/?(\\?id=\\d+)?").authenticated()
-		        .regexMatchers("\\/users/edit\\/?").authenticated()
-			.antMatchers(HttpMethod.POST, "/users/update").authenticated()
-			.antMatchers("/departments/**").hasAnyAuthority("USER", "ADMIN")
-			.antMatchers("/study_programs/**").hasAnyAuthority("USER", "ADMIN")
-			.antMatchers("/subjects/**").hasAnyAuthority("USER", "ADMIN")
-			.antMatchers("/professors/**").hasAnyAuthority("USER", "ADMIN")
-			.antMatchers("/students/**").hasAnyAuthority("USER", "ADMIN")
-			.antMatchers("/exams/**").hasAnyAuthority("USER", "ADMIN")
-			.antMatchers("/users/**").hasAnyAuthority("ADMIN")
+		    .mvcMatchers(
+		    		HttpMethod.GET, 
+		    		"/study_programs/details"
+		    		).permitAll()
+		    
+		    .mvcMatchers(
+		    		HttpMethod.GET, 
+		    		"/departments", 
+		    		"/study_programs", 
+		    		"/subjects", 
+		    		"/students", 
+		    		"/exams",
+		    		"/exams/search", 
+		    		"/students/exams",
+		    		"/users/edit"
+		    		).authenticated()
+		    
+		    .mvcMatchers(
+		    		HttpMethod.POST, 
+		    		"/users/update"
+		    		).authenticated()
+		    
+			.mvcMatchers(
+					HttpMethod.GET, 
+					"/departments/**", 
+					"/study_programs/**",
+					"/subjects/**",
+					"/professors/**",
+			        "/students/**", 
+			        "/exams/**"
+			        ).hasAnyAuthority("USER", "ADMIN")
+			
+			.mvcMatchers(
+					HttpMethod.GET,
+					"/users/**"
+					).hasAnyAuthority("ADMIN")
+			
 			.and()
 			.formLogin()
 			    .loginPage("/login")
@@ -70,7 +90,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.and()
 			.logout()
 			    .logoutUrl("/logout")
-		            .logoutSuccessUrl("/login");
+		        .logoutSuccessUrl("/login");
 	}
 
 }
