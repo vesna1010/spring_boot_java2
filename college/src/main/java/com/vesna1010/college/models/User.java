@@ -119,11 +119,7 @@ public class User implements UserDetails {
 	@Transient
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Set<Authority> authorities = new HashSet<>();
-
-		authorities.add(authority);
-
-		return authorities;
+		return Arrays.asList(authority);
 	}
 
 	@Transient
