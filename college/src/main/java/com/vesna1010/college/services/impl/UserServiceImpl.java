@@ -41,16 +41,16 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User saveUser(User user) {
-		user = setUserPassword(user);
+		user = setAndGetUserWithEncodedPassword(user);
 
 		return repository.save(user);
 	}
 
-	private User setUserPassword(User user) {
+	private User setAndGetUserWithEncodedPassword(User user) {
 		String password = user.getPassword();
-
-		password = encoder.encode(password);
-		user.setPassword(password);
+		String encodedPassword = encoder.encode(password);
+		
+		user.setPassword(encodedPassword);
 
 		return user;
 	}
