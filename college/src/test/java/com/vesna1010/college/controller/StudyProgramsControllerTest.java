@@ -25,7 +25,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
-import com.vesna1010.college.controller.BaseControllerTest;
 import com.vesna1010.college.models.Department;
 import com.vesna1010.college.models.StudyProgram;
 import com.vesna1010.college.services.DepartmentService;
