@@ -46,7 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		    		HttpMethod.GET, 
 		    		"/study_programs/details"
 		    		).permitAll()
-		    
 		    .mvcMatchers(
 		    		HttpMethod.GET, 
 		    		"/departments", 
@@ -58,12 +57,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		    		"/students/exams",
 		    		"/users/edit"
 		    		).authenticated()
-		    
 		    .mvcMatchers(
 		    		HttpMethod.POST, 
 		    		"/users/update"
 		    		).authenticated()
-		    
+		    .mvcMatchers(
+		    		HttpMethod.POST, 
+		    		"/users/save"
+		    		).hasAuthority("ADMIN")
+		    .mvcMatchers(
+		    		HttpMethod.POST, 
+		    		"/*/save"
+		    		).hasAnyAuthority("USER", "ADMIN")
 			.mvcMatchers(
 					HttpMethod.GET, 
 					"/departments/**", 
