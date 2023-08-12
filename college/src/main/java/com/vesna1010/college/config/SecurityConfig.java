@@ -69,33 +69,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		    		HttpMethod.POST, 
 		    		"/*/save"
 		    		).hasAnyAuthority("USER", "ADMIN")
-			.mvcMatchers(
-					HttpMethod.GET, 
-					"/departments/**", 
-					"/study_programs/**",
-					"/subjects/**",
-					"/professors/**",
+		    .mvcMatchers(
+				HttpMethod.GET, 
+				"/departments/**", 
+				"/study_programs/**",
+				"/subjects/**",
+				"/professors/**",
 			        "/students/**", 
 			        "/exams/**"
 			        ).hasAnyAuthority("USER", "ADMIN")
+		    .mvcMatchers(
+				HttpMethod.GET,
+				"/users/**"
+				).hasAnyAuthority("ADMIN")
+		    .and()
+		    .formLogin()
+		    .loginPage("/login")
+		    .loginProcessingUrl("/login")
+		    .failureUrl("/login?error=true")
+		    .defaultSuccessUrl("/")
+		    .usernameParameter("email")
+		    .passwordParameter("password")
 			
-			.mvcMatchers(
-					HttpMethod.GET,
-					"/users/**"
-					).hasAnyAuthority("ADMIN")
-			
-			.and()
-			.formLogin()
-			    .loginPage("/login")
-			    .loginProcessingUrl("/login")
-			    .failureUrl("/login?error=true")
-			    .defaultSuccessUrl("/")
-			    .usernameParameter("email")
-			    .passwordParameter("password")
-			.and()
-			.logout()
-			    .logoutUrl("/logout")
-		        .logoutSuccessUrl("/login");
+		    .and()
+		    .logout()
+		    .logoutUrl("/logout")
+		    .logoutSuccessUrl("/login");
 	}
 
 }
