@@ -42,11 +42,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
-		    .mvcMatchers(
-		    		HttpMethod.GET, 
+		        .mvcMatchers(
+				HttpMethod.GET, 
 		    		"/study_programs/details"
 		    		).permitAll()
-		    .mvcMatchers(
+		        .mvcMatchers(
 		    		HttpMethod.GET, 
 		    		"/departments", 
 		    		"/study_programs", 
@@ -57,19 +57,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		    		"/students/exams",
 		    		"/users/edit"
 		    		).authenticated()
-		    .mvcMatchers(
+		        .mvcMatchers(
 		    		HttpMethod.POST, 
 		    		"/users/update"
 		    		).authenticated()
-		    .mvcMatchers(
+		        .mvcMatchers(
 		    		HttpMethod.POST, 
 		    		"/users/save"
 		    		).hasAuthority("ADMIN")
-		    .mvcMatchers(
+		        .mvcMatchers(
 		    		HttpMethod.POST, 
 		    		"/*/save"
 		    		).hasAnyAuthority("USER", "ADMIN")
-		    .mvcMatchers(
+		        .mvcMatchers(
 				HttpMethod.GET, 
 				"/departments/**", 
 				"/study_programs/**",
@@ -78,23 +78,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			        "/students/**", 
 			        "/exams/**"
 			        ).hasAnyAuthority("USER", "ADMIN")
-		    .mvcMatchers(
+		        .mvcMatchers(
 				HttpMethod.GET,
 				"/users/**"
 				).hasAnyAuthority("ADMIN")
-		    .and()
-		    .formLogin()
-		    .loginPage("/login")
-		    .loginProcessingUrl("/login")
-		    .failureUrl("/login?error=true")
-		    .defaultSuccessUrl("/")
-		    .usernameParameter("email")
-		    .passwordParameter("password")
 			
-		    .and()
-		    .logout()
-		    .logoutUrl("/logout")
-		    .logoutSuccessUrl("/login");
+		    .and().formLogin()
+		        .loginPage("/login")
+		        .loginProcessingUrl("/login")
+		        .failureUrl("/login?error=true")
+		        .defaultSuccessUrl("/")
+		        .usernameParameter("email")
+		        .passwordParameter("password")
+			
+		    .and().logout()
+		        .logoutUrl("/logout")
+		        .logoutSuccessUrl("/login");
 	}
 
 }
