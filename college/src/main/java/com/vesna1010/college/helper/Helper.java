@@ -5,6 +5,9 @@ import java.util.List;
 
 public class Helper {
 
+	private Helper() {
+	}
+
 	public static List<Integer> getNumbers(int currentPage, int totalPages) {
 		List<Integer> numbers = new ArrayList<>();
 
